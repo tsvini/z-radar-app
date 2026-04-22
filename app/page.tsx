@@ -1,295 +1,562 @@
-"use client";
+async function getDashboardData() {
+  const baseUrl = process.env.WORKER_BASE_URL;
+  const token = process.env.WORKER_DASHBOARD_TOKEN;
 
-export default function Home() {
-  const upcomingModules = [
-    {
-      title: "Análise com IA",
-      description:
-        "Geração de resumos executivos, diagnósticos e recomendações a partir dos resultados da auditoria.",
+  if (!baseUrl) {
+    throw new Error("WORKER_BASE_URL não configurada.");
+  }
+
+  if (!token) {
+    throw new Error("WORKER_DASHBOARD_TOKEN não configurado.");
+  }
+
+  const response = await fetch(`${baseUrl}/api/dashboard`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-    {
-      title: "Histórico de execuções",
-      description:
-        "Visualização consolidada das execuções anteriores, evolução dos indicadores e rastreabilidade.",
-    },
-    {
-      title: "Pendências por responsável",
-      description:
-        "Distribuição das pendências identificadas por responsável, com foco em criticidade e priorização.",
-    },
-    {
-      title: "Alertas automáticos",
-      description:
-        "Notificações inteligentes para alterações críticas, degradação da saúde documental e necessidade de ação.",
-    },
-    {
-      title: "Insights executivos",
-      description:
-        "Visão gerencial com leitura consolidada da saúde documental, tendências e pontos de atenção.",
-    },
-    {
-      title: "Configurações de rotas",
-      description:
-        "Gestão de projetos, rotas monitoradas, responsáveis e parâmetros operacionais do Z-Radar.",
-    },
-  ];
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Falha ao carregar dashboard (${response.status}).`);
+  }
+
+  const data = await response.json();
+
+  if (!data?.ok) {
+    throw new Error(data?.error || "Falha ao carregar dashboard.");
+  }
+
+  return data;
+}
+
+export default async function Home() {
+  const data = await getDashboardData();
+
+  const activeModules = Array.isArray(data.activeModules) ? data.activeModules : [];
+  const upcomingModules = Array.isArray(data.upcomingModules) ? data.upcomingModules : [];
+  const routes = Array.isArray(data.routes) ? data.routes : [];
 
   return (
-    <main className="min-h-screen bg-[#050811] text-white relative overflow-hidden">
-      <div className="aurora-bg" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-10">
-        <section className="rounded-[28px] border border-[rgba(18,242,118,0.15)] bg-[rgba(10,15,31,0.82)] backdrop-blur-xl shadow-[0_32px_120px_rgba(0,0,0,0.45)] overflow-hidden">
-          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[rgba(18,242,118,0.45)] to-transparent" />
-
-          <div className="p-8 md:p-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(18,242,118,0.18)] bg-[rgba(18,242,118,0.08)] px-4 py-2 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#12f276]">
-              <span>✦</span>
-              <span>Z-Radar Platform</span>
-            </div>
-
-            <div className="mt-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-              <div className="max-w-3xl">
-                <div className="flex items-center gap-4 mb-5">
-                  <div className="w-14 h-14 rounded-2xl border border-[rgba(18,242,118,0.22)] bg-[linear-gradient(135deg,rgba(18,242,118,0.16),rgba(18,242,118,0.04))] shadow-[0_0_35px_rgba(18,242,118,0.18)] flex items-center justify-center">
-                    <span className="text-[#19f67d] text-3xl font-black drop-shadow-[0_0_12px_rgba(18,242,118,0.25)]">
-                      Z
-                    </span>
-                  </div>
-
-                  <div>
-                    <div className="text-[22px] md:text-[26px] font-bold bg-[linear-gradient(135deg,#12f276,#3fff9f)] bg-clip-text text-transparent">
-                      Z-Radar
-                    </div>
-                    <div className="text-sm text-slate-400">
-                      Painel central de auditoria e monitoramento documental
-                    </div>
-                  </div>
-                </div>
-
-                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
-                  Uma visão central do que já existe
-                  <span className="block text-slate-300 font-semibold mt-2">
-                    e do que está chegando no produto.
-                  </span>
-                </h1>
-
-                <p className="mt-5 max-w-2xl text-[16px] leading-7 text-slate-400">
-                  O Z-Radar consolida a auditoria documental em uma experiência
-                  única, com espaço para evolução contínua em IA, histórico,
-                  pendências operacionais e monitoramento inteligente.
-                </p>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <span className="inline-flex items-center rounded-full border border-[rgba(18,242,118,0.18)] bg-[rgba(18,242,118,0.08)] px-4 py-2 text-sm font-semibold text-[#dfffea]">
-                    Módulo ativo: Auditoria documental
-                  </span>
-                  <span className="inline-flex items-center rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] px-4 py-2 text-sm font-medium text-slate-300">
-                    Roadmap em construção
-                  </span>
-                </div>
-              </div>
-
-              <div className="w-full max-w-sm">
-                <div className="rounded-[24px] border border-[rgba(18,242,118,0.18)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)]">
-                  <div className="text-sm uppercase tracking-[0.08em] text-[#12f276] font-bold">
-                    Estado atual
-                  </div>
-                  <div className="mt-3 text-2xl font-bold text-white">
-                    Plataforma em evolução
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-slate-400">
-                    A auditoria documental já está operacional. Os demais
-                    módulos serão adicionados na mesma experiência, preservando
-                    consistência visual e escalabilidade do produto.
-                  </p>
-
-                  <div className="mt-5 h-2 rounded-full bg-[rgba(255,255,255,0.08)] overflow-hidden">
-                    <div className="h-full w-[28%] rounded-full bg-[linear-gradient(90deg,#18d26f,#9df7c2,#18d26f)]" />
-                  </div>
-                  <div className="mt-3 text-xs text-slate-400 font-medium">
-                    Estrutura inicial do produto pronta
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-          {[
-            { label: "Saúde geral", value: "76%", accent: "text-[#12f276]" },
-            { label: "Itens críticos", value: "6", accent: "text-[#fca5a5]" },
-            { label: "Documentos auditados", value: "41", accent: "text-white" },
-            { label: "Última execução", value: "Hoje", accent: "text-slate-200" },
-          ].map((item) => (
+    <main
+      style={{
+        minHeight: "100vh",
+        background:
+          "radial-gradient(circle at top left, rgba(18,242,118,0.10), transparent 22%), radial-gradient(circle at top right, rgba(76,175,255,0.10), transparent 18%), linear-gradient(180deg, #06101f 0%, #081426 45%, #050b16 100%)",
+        color: "#f8fafc",
+        fontFamily: "Inter, Arial, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1240px",
+          margin: "0 auto",
+          padding: "28px 24px 40px",
+        }}
+      >
+        <header
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "16px",
+            marginBottom: "28px",
+            padding: "18px 22px",
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(8,15,28,0.72)",
+            borderRadius: "22px",
+            backdropFilter: "blur(14px)",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.25)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
             <div
-              key={item.label}
-              className="rounded-[22px] border border-[rgba(18,242,118,0.12)] bg-[rgba(255,255,255,0.03)] p-5 shadow-[0_12px_34px_rgba(0,0,0,0.22)]"
+              style={{
+                width: "52px",
+                height: "52px",
+                borderRadius: "18px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background:
+                  "linear-gradient(135deg, rgba(18,242,118,0.18), rgba(18,242,118,0.05))",
+                border: "1px solid rgba(18,242,118,0.25)",
+                boxShadow: "0 0 24px rgba(18,242,118,0.16)",
+                fontSize: "26px",
+                fontWeight: 800,
+                color: "#19f67d",
+              }}
             >
-              <div className="text-xs uppercase tracking-[0.08em] text-slate-400 font-bold">
-                {item.label}
-              </div>
-              <div className={`mt-3 text-3xl font-extrabold ${item.accent}`}>
-                {item.value}
-              </div>
+              Z
             </div>
-          ))}
-        </section>
 
-        <section className="mt-10">
-          <div className="flex items-center justify-between gap-4 mb-5">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">
-                Módulo disponível
-              </h2>
-              <p className="text-slate-400 mt-1">
-                O primeiro componente funcional da plataforma.
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-[26px] border border-[rgba(18,242,118,0.16)] bg-[rgba(10,15,31,0.78)] p-7 shadow-[0_24px_60px_rgba(0,0,0,0.28)]">
-            <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center rounded-full border border-[rgba(18,242,118,0.22)] bg-[rgba(18,242,118,0.08)] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.08em] text-[#12f276]">
-                  Ativo
-                </div>
-
-                <h3 className="mt-4 text-3xl font-bold text-white">
-                  Auditoria documental
-                </h3>
-
-                <p className="mt-3 text-slate-400 leading-7">
-                  Validação automatizada da saúde da documentação, com leitura
-                  de criticidade, itens desatualizados, geração de relatórios e
-                  acionamento do fluxo operacional já existente.
-                </p>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button className="min-w-[200px] rounded-2xl px-6 py-3.5 font-extrabold text-[#050811] bg-[linear-gradient(135deg,#12f276_0%,#0dd65e_100%)] shadow-[0_16px_40px_rgba(18,242,118,0.25)] transition hover:-translate-y-[2px]">
-                    Acessar módulo
-                  </button>
-
-                  <button className="min-w-[180px] rounded-2xl px-6 py-3.5 font-bold text-white border border-[rgba(18,242,118,0.2)] bg-[rgba(255,255,255,0.04)] transition hover:bg-[rgba(18,242,118,0.08)]">
-                    Ver roadmap
-                  </button>
-                </div>
-              </div>
-
-              <div className="w-full max-w-sm">
-                <div className="rounded-[22px] border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)] p-5">
-                  <div className="text-xs uppercase tracking-[0.08em] text-slate-400 font-bold">
-                    Capacidade atual
-                  </div>
-                  <ul className="mt-4 space-y-3 text-sm text-slate-300">
-                    <li>✓ Auditoria documental</li>
-                    <li>✓ Classificação de criticidade</li>
-                    <li>✓ Relatório operacional</li>
-                    <li>✓ Integração com fluxo existente</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-10">
-          <div className="mb-5">
-            <h2 className="text-2xl font-bold tracking-tight">
-              Próximos módulos
-            </h2>
-            <p className="text-slate-400 mt-1">
-              Estrutura visual do produto já preparada para expansão.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {upcomingModules.map((module) => (
               <div
-                key={module.title}
-                className="rounded-[22px] border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)] p-6 shadow-[0_14px_34px_rgba(0,0,0,0.22)]"
+                style={{
+                  fontSize: "12px",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "#7dd3fc",
+                  fontWeight: 700,
+                  marginBottom: "4px",
+                }}
               >
-                <div className="inline-flex items-center rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-slate-300">
+                Z-RADAR Platform
+              </div>
+              <div
+                style={{
+                  fontSize: "30px",
+                  lineHeight: 1.1,
+                  fontWeight: 800,
+                  letterSpacing: "-0.04em",
+                }}
+              >
+                {data.productName || "Z-Radar"}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <button
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                color: "#e5eefc",
+                border: "1px solid rgba(255,255,255,0.08)",
+                padding: "10px 14px",
+                borderRadius: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Perfil
+            </button>
+            <button
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                color: "#e5eefc",
+                border: "1px solid rgba(255,255,255,0.08)",
+                padding: "10px 14px",
+                borderRadius: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Configurações
+            </button>
+            <button
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                color: "#e5eefc",
+                border: "1px solid rgba(255,255,255,0.08)",
+                padding: "10px 14px",
+                borderRadius: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Sair
+            </button>
+          </div>
+        </header>
+
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.3fr 0.9fr",
+            gap: "18px",
+            marginBottom: "18px",
+          }}
+        >
+          <div
+            style={{
+              borderRadius: "28px",
+              padding: "28px",
+              border: "1px solid rgba(18,242,118,0.16)",
+              background:
+                "linear-gradient(135deg, rgba(7,17,32,0.90), rgba(8,29,29,0.88))",
+              boxShadow: "0 24px 70px rgba(0,0,0,0.28)",
+            }}
+          >
+            <div
+              style={{
+                display: "inline-flex",
+                padding: "8px 12px",
+                borderRadius: "999px",
+                background: "rgba(18,242,118,0.10)",
+                border: "1px solid rgba(18,242,118,0.16)",
+                color: "#78f0aa",
+                fontSize: "12px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                marginBottom: "16px",
+              }}
+            >
+              Operação central
+            </div>
+
+            <h1
+              style={{
+                margin: 0,
+                fontSize: "40px",
+                lineHeight: 1.05,
+                letterSpacing: "-0.05em",
+              }}
+            >
+              Painel inicial do Z-RADAR
+            </h1>
+
+            <p
+              style={{
+                marginTop: "14px",
+                marginBottom: "24px",
+                color: "#97a9c4",
+                fontSize: "16px",
+                lineHeight: 1.7,
+                maxWidth: "680px",
+              }}
+            >
+              Centralize auditorias, acompanhe execuções e prepare a expansão dos
+              próximos módulos na mesma experiência visual do produto.
+            </p>
+
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+              <button
+                style={{
+                  padding: "14px 18px",
+                  borderRadius: "16px",
+                  border: "none",
+                  background:
+                    "linear-gradient(135deg, #12f276 0%, #0dd65e 100%)",
+                  color: "#04110a",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  boxShadow: "0 16px 36px rgba(18,242,118,0.20)",
+                }}
+              >
+                Abrir auditoria documental
+              </button>
+
+              <button
+                style={{
+                  padding: "14px 18px",
+                  borderRadius: "16px",
+                  border: "1px solid rgba(255,255,255,0.09)",
+                  background: "rgba(255,255,255,0.04)",
+                  color: "#eef4ff",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Ver visão geral
+              </button>
+            </div>
+          </div>
+
+          <div
+            style={{
+              borderRadius: "28px",
+              padding: "24px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(8,15,28,0.76)",
+              boxShadow: "0 18px 50px rgba(0,0,0,0.22)",
+            }}
+          >
+            <div
+              style={{
+                color: "#7dd3fc",
+                fontSize: "12px",
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                marginBottom: "12px",
+              }}
+            >
+              Status da plataforma
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gap: "12px",
+              }}
+            >
+              <div
+                style={{
+                  padding: "14px 16px",
+                  borderRadius: "18px",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <div style={{ color: "#94a3b8", fontSize: "13px" }}>
+                  Módulos ativos
+                </div>
+                <div style={{ fontSize: "28px", fontWeight: 800, marginTop: "4px" }}>
+                  {activeModules.length}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  padding: "14px 16px",
+                  borderRadius: "18px",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <div style={{ color: "#94a3b8", fontSize: "13px" }}>
                   Em breve
                 </div>
+                <div style={{ fontSize: "28px", fontWeight: 800, marginTop: "4px" }}>
+                  {upcomingModules.length}
+                </div>
+              </div>
 
-                <h3 className="mt-4 text-xl font-bold text-white">
-                  {module.title}
-                </h3>
+              <div
+                style={{
+                  padding: "14px 16px",
+                  borderRadius: "18px",
+                  background: "rgba(18,242,118,0.06)",
+                  border: "1px solid rgba(18,242,118,0.14)",
+                }}
+              >
+                <div style={{ color: "#94a3b8", fontSize: "13px" }}>
+                  Produto
+                </div>
+                <div style={{ fontSize: "20px", fontWeight: 800, marginTop: "4px" }}>
+                  {data.productName || "Z-Radar"}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-                <p className="mt-3 text-sm leading-6 text-slate-400">
-                  {module.description}
-                </p>
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "18px",
+            marginBottom: "18px",
+          }}
+        >
+          <div
+            style={{
+              borderRadius: "24px",
+              padding: "22px",
+              border: "1px solid rgba(18,242,118,0.12)",
+              background: "rgba(8,15,28,0.76)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "18px",
+                fontWeight: 700,
+                marginBottom: "16px",
+              }}
+            >
+              Módulos ativos
+            </div>
+
+            <div style={{ display: "grid", gap: "12px" }}>
+              {activeModules.map((module: any) => (
+                <div
+                  key={module.key}
+                  style={{
+                    padding: "16px",
+                    borderRadius: "18px",
+                    background:
+                      "linear-gradient(180deg, rgba(18,242,118,0.06), rgba(255,255,255,0.02))",
+                    border: "1px solid rgba(18,242,118,0.14)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: "16px" }}>
+                        {module.name}
+                      </div>
+                      <div
+                        style={{
+                          color: "#94a3b8",
+                          fontSize: "13px",
+                          marginTop: "6px",
+                        }}
+                      >
+                        Módulo disponível no ecossistema atual.
+                      </div>
+                    </div>
+
+                    <span
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: "999px",
+                        background: "rgba(18,242,118,0.10)",
+                        color: "#78f0aa",
+                        border: "1px solid rgba(18,242,118,0.16)",
+                        fontSize: "12px",
+                        fontWeight: 800,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Ativo
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div
+            style={{
+              borderRadius: "24px",
+              padding: "22px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(8,15,28,0.76)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "18px",
+                fontWeight: 700,
+                marginBottom: "16px",
+              }}
+            >
+              Em breve
+            </div>
+
+            <div style={{ display: "grid", gap: "12px" }}>
+              {upcomingModules.map((module: any) => (
+                <div
+                  key={module.key}
+                  style={{
+                    padding: "16px",
+                    borderRadius: "18px",
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: "16px" }}>
+                        {module.name}
+                      </div>
+                      <div
+                        style={{
+                          color: "#94a3b8",
+                          fontSize: "13px",
+                          marginTop: "6px",
+                        }}
+                      >
+                        Estrutura visual pronta para receber integração futura.
+                      </div>
+                    </div>
+
+                    <span
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: "999px",
+                        background: "rgba(255,255,255,0.05)",
+                        color: "#cbd5e1",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontSize: "12px",
+                        fontWeight: 800,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Em breve
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
+          style={{
+            borderRadius: "24px",
+            padding: "22px",
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(8,15,28,0.76)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "18px",
+              fontWeight: 700,
+              marginBottom: "16px",
+            }}
+          >
+            Rotas monitoradas
+          </div>
+
+          <div style={{ display: "grid", gap: "12px" }}>
+            {routes.map((route: any) => (
+              <div
+                key={route.key}
+                style={{
+                  padding: "18px",
+                  borderRadius: "18px",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "12px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: "16px", fontWeight: 700 }}>
+                    {route.label}
+                  </div>
+                  <div
+                    style={{
+                      color: "#94a3b8",
+                      fontSize: "13px",
+                      marginTop: "6px",
+                    }}
+                  >
+                    {route.lastExecution
+                      ? `Última execução: ${route.lastExecution}`
+                      : route.error
+                      ? route.error
+                      : "Sem execução concluída registrada ainda."}
+                  </div>
+                </div>
+
+                <button
+                  style={{
+                    padding: "12px 16px",
+                    borderRadius: "14px",
+                    border: "1px solid rgba(18,242,118,0.16)",
+                    background: "rgba(18,242,118,0.08)",
+                    color: "#dfffea",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  Abrir módulo
+                </button>
               </div>
             ))}
           </div>
         </section>
       </div>
-
-      <style jsx>{`
-        .aurora-bg {
-          position: fixed;
-          inset: 0;
-          z-index: 0;
-          pointer-events: none;
-          background:
-            radial-gradient(ellipse at 20% 30%, rgba(18, 242, 118, 0.22) 0%, transparent 25%),
-            radial-gradient(ellipse at 80% 20%, rgba(14, 165, 233, 0.18) 0%, transparent 20%),
-            radial-gradient(ellipse at 50% 100%, rgba(18, 242, 118, 0.14) 0%, transparent 35%),
-            linear-gradient(135deg, #050811 0%, #0a0f1f 50%, #050811 100%);
-          background-size: 400% 400%, 300% 300%, 350% 350%, 100% 100%;
-          animation: auroraFlow 20s ease-in-out infinite;
-        }
-
-        .aurora-bg::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background-image:
-            repeating-linear-gradient(
-              0deg,
-              rgba(255, 255, 255, 0.025) 0px,
-              rgba(255, 255, 255, 0.025) 1px,
-              transparent 1px,
-              transparent 2px
-            ),
-            repeating-linear-gradient(
-              90deg,
-              rgba(255, 255, 255, 0.025) 0px,
-              rgba(255, 255, 255, 0.025) 1px,
-              transparent 1px,
-              transparent 2px
-            );
-          background-size: 50px 50px;
-          opacity: 0.4;
-          animation: grainShift 8s linear infinite;
-        }
-
-        @keyframes auroraFlow {
-          0%, 100% {
-            background-position: 0% 50%, 100% 50%, 0% 50%, 0% 0%;
-          }
-          25% {
-            background-position: 50% 30%, 50% 60%, 30% 40%, 0% 0%;
-          }
-          50% {
-            background-position: 100% 50%, 0% 50%, 100% 50%, 0% 0%;
-          }
-          75% {
-            background-position: 50% 70%, 50% 40%, 70% 60%, 0% 0%;
-          }
-        }
-
-        @keyframes grainShift {
-          0% {
-            background-position: 0 0, 0 0;
-          }
-          100% {
-            background-position: 100px 100px, 100px 100px;
-          }
-        }
-      `}</style>
     </main>
   );
 }
