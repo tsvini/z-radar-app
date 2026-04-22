@@ -9,7 +9,7 @@ export function HeroBanner({ apiUrl }: HeroBannerProps) {
 
       <div className="heroHeader">
         <div className="heroBrand">
-          <img src="/zallpy.png" alt="Z-Radar" className="heroLogo" />
+          <img src="/zradar-logo.png" alt="Z-Radar" className="heroLogo" />
 
           <div className="heroCopy">
             <p className="heroEyebrow">

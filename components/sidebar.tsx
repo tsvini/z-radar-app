@@ -49,7 +49,7 @@ export function Sidebar() {
             <a
               key={item.label}
               href={item.href}
-              className={`sidebarItem ${item.active ? "active" : ""}`}
+              className={`sidebarItem ${item.active ? "active" : ""} ${collapsed ? "isCollapsed" : ""}`}
               title={collapsed ? item.label : undefined}
             >
               <span className="sidebarItemIcon">{item.icon}</span>

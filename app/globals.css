@@ -16,7 +16,7 @@
   --radius-lg: 20px;
   --radius-md: 16px;
   --radius-sm: 12px;
-  --sidebar-open: 220px;
+  --sidebar-open: 214px;
   --sidebar-closed: 88px;
 }
 
@@ -91,7 +91,7 @@ button {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: var(--sidebar-open) minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -99,6 +99,7 @@ button {
   position: sticky;
   top: 0;
   height: 100vh;
+  width: var(--sidebar-open);
   padding: 12px 10px;
   border-right: 1px solid rgba(255, 255, 255, 0.04);
   background: rgba(4, 10, 18, 0.74);
@@ -107,8 +108,9 @@ button {
   flex-direction: column;
   gap: 12px;
   overflow: hidden;
-  width: var(--sidebar-open);
-  transition: width 0.22s ease;
+  transition:
+    width 0.22s ease,
+    padding 0.22s ease;
 }
 
 .sidebar.collapsed {
@@ -151,6 +153,7 @@ button {
   align-items: center;
   gap: 10px;
   min-height: 58px;
+  min-width: 0;
 }
 
 .sidebarLogoWrap {
@@ -219,9 +222,10 @@ button {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(255, 255, 255, 0.03);
-  display: flex;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
+  column-gap: 10px;
   padding: 0 12px;
   transition: 0.2s ease;
 }
@@ -236,6 +240,16 @@ button {
   background: linear-gradient(90deg, rgba(38, 238, 127, 0.08), rgba(255, 255, 255, 0.02));
 }
 
+.sidebarItem.isCollapsed {
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  margin: 0 auto;
+}
+
 .sidebarItemIcon {
   width: 18px;
   flex: 0 0 18px;
@@ -245,20 +259,21 @@ button {
 }
 
 .sidebarItemContent {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
-  justify-content: space-between;
   width: 100%;
   min-width: 0;
 }
 
 .sidebarItemLabel {
-  flex: 1;
+  min-width: 0;
   font-size: 13px;
   font-weight: 800;
   line-height: 1.15;
-  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .soonBadge {
@@ -267,6 +282,7 @@ button {
   align-items: center;
   justify-content: center;
   height: 20px;
+  max-width: 68px;
   padding: 0 7px;
   border-radius: 999px;
   font-size: 9px;
@@ -281,11 +297,6 @@ button {
 
 .sidebar.collapsed .sidebarBrand {
   justify-content: center;
-}
-
-.sidebar.collapsed .sidebarItem {
-  justify-content: center;
-  padding: 0;
 }
 
 .sidebarBottomCards {
@@ -328,6 +339,7 @@ button {
 
 .appContent {
   padding: 14px 18px 22px;
+  min-width: 0;
 }
 
 .topbar {
