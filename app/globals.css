@@ -5,21 +5,19 @@
   --panel-strong: rgba(8, 18, 34, 0.92);
   --border: rgba(18, 242, 118, 0.16);
   --border-strong: rgba(18, 242, 118, 0.24);
-  --border-soft: rgba(255, 255, 255, 0.06);
   --text: #eef4ff;
   --muted: #9aa8bc;
   --green: #26ee7f;
-  --green-2: #9cf8c4;
   --yellow: #ffd76b;
   --red: #ff8c8c;
   --shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
   --radius-xl: 24px;
   --radius-lg: 20px;
   --radius-md: 16px;
-  --radius-sm: 12px;
-  --sidebar-open: 282px;
-  --sidebar-closed: 96px;
+  --sidebar-open: 278px;
+  --sidebar-closed: 92px;
   --sidebar-item-height: 56px;
+  --sidebar-row-gap: 10px;
 }
 
 * {
@@ -61,9 +59,9 @@ img {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 15% 20%, rgba(38, 238, 127, 0.16), transparent 22%),
-    radial-gradient(circle at 80% 12%, rgba(68, 191, 255, 0.12), transparent 18%),
-    radial-gradient(circle at 55% 92%, rgba(38, 238, 127, 0.14), transparent 24%),
+    radial-gradient(circle at 15% 20%, rgba(38, 238, 127, 0.14), transparent 22%),
+    radial-gradient(circle at 80% 12%, rgba(68, 191, 255, 0.1), transparent 18%),
+    radial-gradient(circle at 55% 92%, rgba(38, 238, 127, 0.11), transparent 24%),
     linear-gradient(180deg, #04070d 0%, #07111d 50%, #04070d 100%);
   background-size: 280% 280%, 220% 220%, 240% 240%, 100% 100%;
   animation: auroraFlow 20s ease-in-out infinite;
@@ -76,12 +74,12 @@ img {
   background:
     repeating-linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.018) 0,
-      rgba(255, 255, 255, 0.018) 1px,
+      rgba(255, 255, 255, 0.015) 0,
+      rgba(255, 255, 255, 0.015) 1px,
       transparent 1px,
       transparent 58px
     );
-  opacity: 0.14;
+  opacity: 0.12;
 }
 
 @keyframes auroraFlow {
@@ -109,26 +107,22 @@ img {
   top: 0;
   height: 100vh;
   width: var(--sidebar-open);
-  padding: 12px;
-  background: rgba(4, 10, 18, 0.78);
+  padding: 10px 12px 14px;
+  background: rgba(4, 10, 18, 0.62);
   border-right: 1px solid rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px);
-  display: flex;
-  flex-direction: column;
+  backdrop-filter: blur(14px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   gap: 14px;
-  transition:
-    width 0.24s ease,
-    padding 0.24s ease;
+  transition: width 0.22s ease;
   overflow: hidden;
 }
 
 .sidebar.collapsed {
   width: var(--sidebar-closed);
-  padding: 12px 10px;
 }
 
 .sidebarTop {
-  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -187,7 +181,6 @@ img {
   border: 1px solid var(--border);
   box-shadow: 0 0 24px rgba(38, 238, 127, 0.1);
   overflow: hidden;
-  flex: 0 0 auto;
 }
 
 .sidebarLogo {
@@ -214,14 +207,6 @@ img {
   color: var(--muted);
 }
 
-.sidebarMain {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
 .sidebarTitle {
   padding: 0 4px;
   font-size: 12px;
@@ -231,49 +216,30 @@ img {
   color: #dbe3ee;
 }
 
-.sidebarNav,
-.sidebarSystemNav {
+.sidebarCenter {
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.sidebarNav {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--sidebar-row-gap);
 }
 
 .sidebarBottom {
-  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  justify-content: flex-end;
   padding-top: 2px;
 }
 
-.sidebarInfoCard {
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 13px 14px 14px;
+.sidebarSystemNav {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-}
-
-.sidebarInfoKicker {
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--green);
-}
-
-.sidebarInfoCard strong {
-  font-size: 14px;
-  line-height: 1.2;
-}
-
-.sidebarInfoCard p {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--muted);
+  gap: var(--sidebar-row-gap);
 }
 
 .sidebarItem {
@@ -303,7 +269,7 @@ img {
     rgba(38, 238, 127, 0.07),
     rgba(255, 255, 255, 0.025)
   );
-  box-shadow: inset 0 0 0 1px rgba(38, 238, 127, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(38, 238, 127, 0.04);
 }
 
 .sidebarItem.isCollapsed {
@@ -326,7 +292,6 @@ img {
   font-size: 13px;
   line-height: 1;
   opacity: 0.96;
-  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -334,7 +299,7 @@ img {
 
 .sidebarItemLabel {
   min-width: 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
   line-height: 1.2;
   white-space: nowrap;
@@ -346,7 +311,7 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 72px;
+  min-width: 68px;
   height: 22px;
   padding: 0 8px;
   border-radius: 999px;
@@ -361,13 +326,12 @@ img {
   flex: 0 0 auto;
 }
 
-.sidebar.collapsed .sidebarTitle,
-.sidebar.collapsed .sidebarInfoCard {
+.sidebar.collapsed .sidebarTitle {
   display: none;
 }
 
 .sidebar.collapsed .sidebarTop,
-.sidebar.collapsed .sidebarMain,
+.sidebar.collapsed .sidebarCenter,
 .sidebar.collapsed .sidebarBottom,
 .sidebar.collapsed .sidebarNav,
 .sidebar.collapsed .sidebarSystemNav {
@@ -378,12 +342,15 @@ img {
   min-height: 74px;
 }
 
-.sidebar.collapsed .sidebarMain {
-  flex: 1 1 auto;
-  justify-content: flex-start;
+.sidebar.collapsed .sidebarCenter {
+  align-items: flex-start;
 }
 
 .sidebar.collapsed .sidebarBottom {
+  justify-content: flex-end;
+}
+
+.sidebar.collapsed .sidebarSystemNav {
   margin-top: auto;
 }
 
@@ -391,13 +358,13 @@ img {
 
 .appContent {
   min-width: 0;
-  padding: 16px 18px 22px;
+  padding: 8px 10px 18px;
 }
 
 .dashboardWrap {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .heroCard,
@@ -407,14 +374,14 @@ img {
   border: 1px solid var(--border);
   background: linear-gradient(
     180deg,
-    rgba(3, 14, 34, 0.92),
-    rgba(3, 10, 25, 0.88)
+    rgba(3, 14, 34, 0.9),
+    rgba(3, 10, 25, 0.86)
   );
   box-shadow: var(--shadow);
 }
 
 .heroCard {
-  padding: 22px 22px 20px;
+  padding: 18px 18px 16px;
 }
 
 .heroBadge {
@@ -431,7 +398,7 @@ img {
 }
 
 .heroHeader {
-  margin-top: 16px;
+  margin-top: 14px;
   display: flex;
   align-items: center;
   gap: 24px;
@@ -440,12 +407,12 @@ img {
 .heroBrand {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 22px;
   min-width: 0;
 }
 
 .heroLogo {
-  width: 240px;
+  width: 175px;
   max-width: 100%;
   height: auto;
   object-fit: contain;
@@ -455,20 +422,20 @@ img {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: 840px;
+  max-width: 860px;
 }
 
 .heroEyebrow {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   color: #c5d0df;
 }
 
 .heroDescription {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.65;
   color: #d8dfeb;
 }
 
@@ -484,20 +451,20 @@ img {
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .statCard {
-  min-height: 118px;
-  padding: 18px 18px 16px;
+  min-height: 96px;
+  padding: 14px 16px 13px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 .statLabel {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -505,20 +472,20 @@ img {
 }
 
 .statValue {
-  font-size: 58px;
-  line-height: 0.95;
+  font-size: 30px;
+  line-height: 1;
   font-weight: 900;
   color: #f8fbff;
 }
 
 .statFootnote {
-  font-size: 15px;
-  line-height: 1.45;
+  font-size: 11px;
+  line-height: 1.4;
   color: var(--muted);
 }
 
 .sectionCard {
-  padding: 16px;
+  padding: 14px;
 }
 
 .sectionHeader {
@@ -526,25 +493,25 @@ img {
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .sectionTitle {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 900;
 }
 
 .sectionSubtitle {
   margin: 4px 0 0;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted);
 }
 
 .routeDetailsGrid,
 .upcomingModulesGrid {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .routeDetailsGrid {
@@ -568,13 +535,13 @@ img {
 
 .routeTitle {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 900;
 }
 
 .routeSub {
   margin: 6px 0 0;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--muted);
 }
 
@@ -582,10 +549,10 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  padding: 0 12px;
+  min-height: 26px;
+  padding: 0 11px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
   white-space: nowrap;
@@ -616,9 +583,9 @@ img {
 }
 
 .healthBar {
-  margin-top: 14px;
+  margin-top: 12px;
   width: 100%;
-  height: 12px;
+  height: 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   overflow: hidden;
@@ -650,9 +617,9 @@ img {
 }
 
 .routeScore {
-  width: 80px;
-  min-width: 80px;
-  height: 70px;
+  width: 84px;
+  min-width: 84px;
+  height: 68px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -664,7 +631,7 @@ img {
 }
 
 .routeScoreValue {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 900;
   line-height: 1;
 }
@@ -686,13 +653,13 @@ img {
 }
 
 .routeScoreLabel {
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 .routeDetailMeta {
-  margin-top: 14px;
+  margin-top: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -700,7 +667,7 @@ img {
 }
 
 .routeCapturedAt {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
 }
 
@@ -712,9 +679,9 @@ img {
 }
 
 .routeDetailStat {
-  min-height: 72px;
-  border-radius: 15px;
-  padding: 12px;
+  min-height: 78px;
+  border-radius: 16px;
+  padding: 12px 14px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(255, 255, 255, 0.03);
   display: flex;
@@ -724,12 +691,12 @@ img {
 }
 
 .routeDetailStatLabel {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
 }
 
 .routeDetailStatValue {
-  font-size: 31px;
+  font-size: 18px;
   font-weight: 900;
   color: #f8fbff;
   line-height: 1;
@@ -744,18 +711,18 @@ img {
 }
 
 .detailMessage {
-  margin-top: 14px;
+  margin-top: 12px;
   font-size: 14px;
   line-height: 1.65;
   color: #d7dfeb;
 }
 
 .detailOwners {
-  margin-top: 14px;
+  margin-top: 12px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.025);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 14px;
+  padding: 13px;
 }
 
 .detailOwnersTitle {
@@ -786,7 +753,7 @@ img {
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 13px;
   color: #eef4ff;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -803,8 +770,8 @@ img {
 }
 
 .upcomingModuleCard {
-  min-height: 124px;
-  padding: 18px;
+  min-height: 112px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -836,8 +803,8 @@ img {
 .upcomingDescription {
   margin: 0;
   color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .footerNote {

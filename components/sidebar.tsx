@@ -7,7 +7,15 @@ import Link from "next/link";
 type NavItem = {
   label: string;
   href: string;
-  icon: "dashboard" | "document" | "history" | "warning" | "insight" | "settings" | "profile" | "logout";
+  icon:
+    | "dashboard"
+    | "document"
+    | "history"
+    | "warning"
+    | "insight"
+    | "settings"
+    | "profile"
+    | "logout";
   soon?: boolean;
   active?: boolean;
 };
@@ -21,9 +29,9 @@ const mainItems: NavItem[] = [
 ];
 
 const bottomItems: NavItem[] = [
-  { label: "Perfil", href: "#", icon: "profile", soon: true },
-  { label: "Configurações", href: "#", icon: "settings", soon: true },
-  { label: "Sair", href: "#", icon: "logout", soon: true },
+  { label: "Perfil", href: "#", icon: "profile" },
+  { label: "Configurações", href: "#", icon: "settings" },
+  { label: "Sair", href: "#", icon: "logout" },
 ];
 
 function SidebarIcon({ name }: { name: NavItem["icon"] }) {
@@ -186,11 +194,11 @@ export function Sidebar() {
             </div>
           )}
         </div>
+
+        {!collapsed && <div className="sidebarTitle">Navegação</div>}
       </div>
 
-      <div className="sidebarMain">
-        {!collapsed && <div className="sidebarTitle">Navegação</div>}
-
+      <div className="sidebarCenter">
         <nav className="sidebarNav">
           {mainItems.map((item) => (
             <SidebarButton
@@ -203,22 +211,6 @@ export function Sidebar() {
       </div>
 
       <div className="sidebarBottom">
-        {!collapsed && (
-          <>
-            <div className="sidebarInfoCard">
-              <span className="sidebarInfoKicker">Módulo ativo</span>
-              <strong>Auditoria documental</strong>
-              <p>Fluxo principal já operacional, com visão consolidada da saúde documental.</p>
-            </div>
-
-            <div className="sidebarInfoCard">
-              <span className="sidebarInfoKicker">Próximo passo</span>
-              <strong>Integração completa</strong>
-              <p>Histórico, pendências, insights e ações executivas no mesmo painel.</p>
-            </div>
-          </>
-        )}
-
         <nav className="sidebarSystemNav">
           {bottomItems.map((item) => (
             <SidebarButton
