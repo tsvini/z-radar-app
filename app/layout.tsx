@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getDashboardData, getHealthLabel, getHealthTone } from "../lib/dashboard";
+import "./globals.css";
 
 function toneClass(percent: number) {
   const tone = getHealthTone(percent);
