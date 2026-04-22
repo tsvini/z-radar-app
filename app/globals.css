@@ -17,7 +17,7 @@
   --radius-lg: 20px;
   --radius-md: 16px;
   --radius-sm: 12px;
-  --sidebar-open: 290px;
+  --sidebar-open: 300px;
   --sidebar-closed: 104px;
 }
 
@@ -101,6 +101,8 @@ img {
   min-height: 100vh;
 }
 
+/* SIDEBAR */
+
 .sidebar {
   position: sticky;
   top: 0;
@@ -110,9 +112,9 @@ img {
   background: rgba(4, 10, 18, 0.74);
   border-right: 1px solid rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(16px);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 14px;
   transition:
     width 0.24s ease,
     padding 0.24s ease;
@@ -121,13 +123,14 @@ img {
 
 .sidebar.collapsed {
   width: var(--sidebar-closed);
+  padding: 14px 10px;
 }
 
 .sidebarTop {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  flex: 0 0 auto;
+  min-height: 0;
 }
 
 .sidebarToggle {
@@ -175,7 +178,11 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(38, 238, 127, 0.14), rgba(38, 238, 127, 0.04));
+  background: linear-gradient(
+    135deg,
+    rgba(38, 238, 127, 0.14),
+    rgba(38, 238, 127, 0.04)
+  );
   border: 1px solid var(--border);
   box-shadow: 0 0 24px rgba(38, 238, 127, 0.1);
   overflow: hidden;
@@ -209,7 +216,6 @@ img {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  flex: 1 1 auto;
   min-height: 0;
 }
 
@@ -232,18 +238,22 @@ img {
 .sidebarBottom {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  flex: 0 0 auto;
+  gap: 10px;
+  align-self: end;
+}
+
+.sidebarBottom .sidebarSystemNav {
+  margin-top: 2px;
 }
 
 .sidebarInfoCard {
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(255, 255, 255, 0.03);
-  padding: 16px;
+  padding: 14px 14px 13px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
 .sidebarInfoKicker {
@@ -255,19 +265,19 @@ img {
 }
 
 .sidebarInfoCard strong {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.2;
 }
 
 .sidebarInfoCard p {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.58;
   color: var(--muted);
 }
 
 .sidebarItem {
-  min-height: 52px;
+  min-height: 54px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(255, 255, 255, 0.03);
@@ -286,15 +296,19 @@ img {
 
 .sidebarItem.active {
   border-color: var(--border-strong);
-  background: linear-gradient(90deg, rgba(38, 238, 127, 0.07), rgba(255, 255, 255, 0.025));
+  background: linear-gradient(
+    90deg,
+    rgba(38, 238, 127, 0.07),
+    rgba(255, 255, 255, 0.025)
+  );
   box-shadow: inset 0 0 0 1px rgba(38, 238, 127, 0.05);
 }
 
 .sidebarItem.isCollapsed {
-  width: 52px;
-  min-width: 52px;
-  height: 52px;
-  min-height: 52px;
+  width: 54px;
+  min-width: 54px;
+  height: 54px;
+  min-height: 54px;
   padding: 0;
   margin: 0 auto;
   display: flex;
@@ -313,19 +327,20 @@ img {
 
 .sidebarItemLabel {
   min-width: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   line-height: 1.2;
-  white-space: normal;
-  overflow-wrap: normal;
-  word-break: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
 }
 
 .soonBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 70px;
+  min-width: 72px;
   height: 22px;
   padding: 0 8px;
   border-radius: 999px;
@@ -338,6 +353,22 @@ img {
   border: 1px solid rgba(244, 218, 133, 0.14);
   white-space: nowrap;
 }
+
+/* no modo recolhido, mantém a área principal estável e limpa */
+.sidebar.collapsed .sidebarMain {
+  gap: 10px;
+}
+
+.sidebar.collapsed .sidebarBottom {
+  gap: 10px;
+}
+
+.sidebar.collapsed .sidebarInfoCard,
+.sidebar.collapsed .sidebarTitle {
+  display: none;
+}
+
+/* CONTEÚDO */
 
 .appContent {
   min-width: 0;
@@ -380,7 +411,11 @@ img {
 .statCard {
   border-radius: var(--radius-xl);
   border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(3, 14, 34, 0.92), rgba(3, 10, 25, 0.88));
+  background: linear-gradient(
+    180deg,
+    rgba(3, 14, 34, 0.92),
+    rgba(3, 10, 25, 0.88)
+  );
   box-shadow: var(--shadow);
 }
 
