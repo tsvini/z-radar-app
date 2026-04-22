@@ -9,7 +9,7 @@ export function UpcomingModuleCard({
 }: UpcomingModuleCardProps) {
   return (
     <article className="upcomingModuleCard">
-      <div className="upcomingBadge">Em breve</div>
+      <span className="upcomingBadge">Em breve</span>
       <h3 className="upcomingTitle">{title}</h3>
       <p className="upcomingDescription">{description}</p>
     </article>

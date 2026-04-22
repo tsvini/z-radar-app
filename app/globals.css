@@ -17,8 +17,9 @@
   --radius-lg: 20px;
   --radius-md: 16px;
   --radius-sm: 12px;
-  --sidebar-open: 300px;
-  --sidebar-closed: 104px;
+  --sidebar-open: 282px;
+  --sidebar-closed: 96px;
+  --sidebar-item-height: 56px;
 }
 
 * {
@@ -80,7 +81,7 @@ img {
       transparent 1px,
       transparent 58px
     );
-  opacity: 0.16;
+  opacity: 0.14;
 }
 
 @keyframes auroraFlow {
@@ -108,12 +109,12 @@ img {
   top: 0;
   height: 100vh;
   width: var(--sidebar-open);
-  padding: 14px 12px;
-  background: rgba(4, 10, 18, 0.74);
+  padding: 12px;
+  background: rgba(4, 10, 18, 0.78);
   border-right: 1px solid rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(16px);
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   transition:
     width 0.24s ease,
@@ -123,19 +124,19 @@ img {
 
 .sidebar.collapsed {
   width: var(--sidebar-closed);
-  padding: 14px 10px;
+  padding: 12px 10px;
 }
 
 .sidebarTop {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  min-height: 0;
+  gap: 12px;
 }
 
 .sidebarToggle {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   background: rgba(255, 255, 255, 0.04);
@@ -163,7 +164,7 @@ img {
   grid-template-columns: 64px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
-  min-height: 64px;
+  min-height: 74px;
 }
 
 .sidebarBrand.collapsed {
@@ -186,10 +187,11 @@ img {
   border: 1px solid var(--border);
   box-shadow: 0 0 24px rgba(38, 238, 127, 0.1);
   overflow: hidden;
+  flex: 0 0 auto;
 }
 
 .sidebarLogo {
-  width: 72%;
+  width: 64%;
   height: auto;
   object-fit: contain;
 }
@@ -198,7 +200,7 @@ img {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .sidebarBrandText strong {
@@ -213,10 +215,11 @@ img {
 }
 
 .sidebarMain {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 0;
+  gap: 12px;
 }
 
 .sidebarTitle {
@@ -236,21 +239,18 @@ img {
 }
 
 .sidebarBottom {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  align-self: end;
-}
-
-.sidebarBottom .sidebarSystemNav {
-  margin-top: 2px;
+  gap: 12px;
+  padding-top: 2px;
 }
 
 .sidebarInfoCard {
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(255, 255, 255, 0.03);
-  padding: 14px 14px 13px;
+  padding: 13px 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -272,21 +272,23 @@ img {
 .sidebarInfoCard p {
   margin: 0;
   font-size: 12px;
-  line-height: 1.58;
+  line-height: 1.55;
   color: var(--muted);
 }
 
 .sidebarItem {
-  min-height: 54px;
+  min-height: var(--sidebar-item-height);
+  height: var(--sidebar-item-height);
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(255, 255, 255, 0.03);
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
-  padding: 0 14px;
+  gap: 12px;
+  padding: 0 16px;
   transition: 0.2s ease;
+  width: 100%;
 }
 
 .sidebarItem:hover {
@@ -305,10 +307,11 @@ img {
 }
 
 .sidebarItem.isCollapsed {
-  width: 54px;
-  min-width: 54px;
-  height: 54px;
-  min-height: 54px;
+  width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  height: 56px;
+  min-height: 56px;
   padding: 0;
   margin: 0 auto;
   display: flex;
@@ -318,11 +321,15 @@ img {
 
 .sidebarItemIcon {
   width: 18px;
+  min-width: 18px;
   text-align: center;
   font-size: 13px;
   line-height: 1;
   opacity: 0.96;
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebarItemLabel {
@@ -333,7 +340,6 @@ img {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  word-break: keep-all;
 }
 
 .soonBadge {
@@ -352,52 +358,40 @@ img {
   background: rgba(244, 218, 133, 0.07);
   border: 1px solid rgba(244, 218, 133, 0.14);
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
-/* no modo recolhido, mantém a área principal estável e limpa */
-.sidebar.collapsed .sidebarMain {
-  gap: 10px;
-}
-
-.sidebar.collapsed .sidebarBottom {
-  gap: 10px;
-}
-
-.sidebar.collapsed .sidebarInfoCard,
-.sidebar.collapsed .sidebarTitle {
+.sidebar.collapsed .sidebarTitle,
+.sidebar.collapsed .sidebarInfoCard {
   display: none;
 }
 
-/* CONTEÚDO */
+.sidebar.collapsed .sidebarTop,
+.sidebar.collapsed .sidebarMain,
+.sidebar.collapsed .sidebarBottom,
+.sidebar.collapsed .sidebarNav,
+.sidebar.collapsed .sidebarSystemNav {
+  align-items: center;
+}
+
+.sidebar.collapsed .sidebarBrand {
+  min-height: 74px;
+}
+
+.sidebar.collapsed .sidebarMain {
+  flex: 1 1 auto;
+  justify-content: flex-start;
+}
+
+.sidebar.collapsed .sidebarBottom {
+  margin-top: auto;
+}
+
+/* CONTENT */
 
 .appContent {
   min-width: 0;
-  padding: 12px 18px 22px;
-}
-
-.topbar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.topbarButton {
-  min-width: 40px;
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.topbarButton.logout {
-  color: #ffc8c8;
-  border-color: rgba(255, 140, 140, 0.15);
+  padding: 16px 18px 22px;
 }
 
 .dashboardWrap {
@@ -440,30 +434,28 @@ img {
   margin-top: 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 24px;
 }
 
 .heroBrand {
   display: flex;
   align-items: center;
-  gap: 26px;
+  gap: 28px;
   min-width: 0;
 }
 
 .heroLogo {
-  width: 230px;
+  width: 240px;
   max-width: 100%;
   height: auto;
   object-fit: contain;
-  display: block;
 }
 
 .heroCopy {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: 760px;
+  max-width: 840px;
 }
 
 .heroEyebrow {
@@ -478,10 +470,6 @@ img {
   font-size: 15px;
   line-height: 1.7;
   color: #d8dfeb;
-}
-
-.heroActions {
-  display: none;
 }
 
 .errorBanner {
@@ -517,8 +505,8 @@ img {
 }
 
 .statValue {
-  font-size: 48px;
-  line-height: 1;
+  font-size: 58px;
+  line-height: 0.95;
   font-weight: 900;
   color: #f8fbff;
 }
@@ -553,19 +541,16 @@ img {
   color: var(--muted);
 }
 
-.routeHealthGrid,
 .routeDetailsGrid,
 .upcomingModulesGrid {
   display: grid;
   gap: 14px;
 }
 
-.routeHealthGrid,
 .routeDetailsGrid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.routeHealthCard,
 .routeDetailCard,
 .upcomingModuleCard {
   border-radius: 22px;
@@ -574,7 +559,6 @@ img {
   padding: 16px;
 }
 
-.routeHealthTop,
 .routeDetailTop {
   display: flex;
   align-items: flex-start;
@@ -640,6 +624,10 @@ img {
   overflow: hidden;
 }
 
+.routeDetailBar {
+  margin-top: 12px;
+}
+
 .healthBarFill {
   height: 100%;
   border-radius: 999px;
@@ -661,48 +649,6 @@ img {
   background: linear-gradient(90deg, #76849a, #a7b2c2);
 }
 
-.routeMiniStats {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.routeMiniStat {
-  min-height: 78px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 10px;
-  text-align: center;
-}
-
-.routeMiniValue {
-  font-size: 18px;
-  font-weight: 900;
-  line-height: 1;
-  color: #f7fbff;
-}
-
-.routeMiniValue.warning {
-  color: var(--yellow);
-}
-
-.routeMiniValue.danger {
-  color: var(--red);
-}
-
-.routeMiniLabel {
-  margin-top: 7px;
-  font-size: 11px;
-  color: #c7d0dc;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
 .routeScore {
   width: 80px;
   min-width: 80px;
@@ -721,6 +667,22 @@ img {
   font-size: 22px;
   font-weight: 900;
   line-height: 1;
+}
+
+.routeScoreValue.success {
+  color: #f8fbff;
+}
+
+.routeScoreValue.warning {
+  color: var(--yellow);
+}
+
+.routeScoreValue.danger {
+  color: var(--red);
+}
+
+.routeScoreValue.neutral {
+  color: #f8fbff;
 }
 
 .routeScoreLabel {
@@ -885,14 +847,15 @@ img {
   color: var(--muted);
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
   .statsGrid,
-  .routeHealthGrid,
   .routeDetailsGrid,
   .upcomingModulesGrid {
     grid-template-columns: 1fr;
   }
+}
 
+@media (max-width: 980px) {
   .heroHeader {
     flex-direction: column;
     align-items: flex-start;
@@ -901,6 +864,10 @@ img {
   .heroBrand {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .routeDetailStats {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -915,12 +882,11 @@ img {
     width: 100%;
   }
 
-  .appContent {
-    padding: 14px;
+  .sidebar.collapsed {
+    width: 100%;
   }
 
-  .routeMiniStats,
-  .routeDetailStats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .appContent {
+    padding: 14px;
   }
 }

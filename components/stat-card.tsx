@@ -7,9 +7,9 @@ type StatCardProps = {
 export function StatCard({ title, value, footnote }: StatCardProps) {
   return (
     <article className="statCard">
-      <span className="statLabel">{title}</span>
-      <strong className="statValue">{value}</strong>
-      <span className="statFootnote">{footnote}</span>
+      <div className="statLabel">{title}</div>
+      <div className="statValue">{value}</div>
+      <div className="statFootnote">{footnote}</div>
     </article>
   );
 }

@@ -1,16 +1,17 @@
+import type { Metadata } from "next";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Z-Radar",
-  description: "Auditoria e monitoramento inteligente",
+  description: "Dashboard executivo de auditoria documental",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="pt-BR">
       <body>

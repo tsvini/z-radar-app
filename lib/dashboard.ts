@@ -19,23 +19,24 @@ export type DashboardRoute = {
 
 export type DashboardResponse = {
   ok: boolean;
-  error?: string;
   productName: string;
   routes: DashboardRoute[];
+  error?: string;
 };
 
-export async function getDashboardData(): Promise<DashboardResponse> {
-  const apiUrl = process.env.NEXT_PUBLIC_DASHBOARD_API_URL;
-  const token = process.env.DASHBOARD_API_TOKEN;
+const FALLBACK_API_URL =
+  "https://wandering-disk-47a9.tsvini111.workers.dev/api/dashboard";
 
-  if (!apiUrl) {
-    return {
-      ok: false,
-      error: "NEXT_PUBLIC_DASHBOARD_API_URL não configurada.",
-      productName: "Z-Radar",
-      routes: [],
-    };
-  }
+export async function getDashboardData(): Promise<DashboardResponse> {
+  const apiUrl =
+    process.env.DASHBOARD_API_URL ||
+    process.env.NEXT_PUBLIC_DASHBOARD_API_URL ||
+    FALLBACK_API_URL;
+
+  const token =
+    process.env.DASHBOARD_API_TOKEN ||
+    process.env.WORKER_DASHBOARD_TOKEN ||
+    "";
 
   try {
     const response = await fetch(apiUrl, {
@@ -44,66 +45,80 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       headers: token
         ? {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           }
-        : {
-            "Content-Type": "application/json",
-          },
+        : {},
     });
 
-    const data = await response.json();
+    const json = (await response.json()) as DashboardResponse;
 
     if (!response.ok) {
       return {
         ok: false,
-        error: data?.error || `Erro ${response.status}`,
         productName: "Z-Radar",
         routes: [],
+        error:
+          typeof json?.error === "string" && json.error.trim()
+            ? json.error
+            : `Falha ao consultar a API (${response.status}).`,
       };
     }
 
     return {
-      ok: true,
-      productName: data.productName || "Z-Radar",
-      routes: Array.isArray(data.routes) ? data.routes : [],
+      ok: Boolean(json?.ok),
+      productName: json?.productName || "Z-Radar",
+      routes: Array.isArray(json?.routes) ? json.routes : [],
+      error: json?.error || "",
     };
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : "Falha ao buscar dados da API.",
       productName: "Z-Radar",
       routes: [],
+      error: error instanceof Error ? error.message : "Erro inesperado ao carregar dados.",
     };
   }
 }
 
-export function hasAuditData(route: DashboardRoute) {
-  return (
-    Number(route.total_pages || 0) > 0 ||
-    Number(route.outdated_pages || 0) > 0 ||
-    Number(route.critical_pages || 0) > 0 ||
-    Number(route.health_percent || 0) > 0 ||
-    Boolean(route.status_title) ||
-    Boolean(route.status_text) ||
-    Boolean(route.doc_title) ||
-    Boolean(route.captured_at)
+export function hasRealSnapshot(route: DashboardRoute): boolean {
+  return Boolean(
+    route.captured_at ||
+      route.status_title ||
+      route.status_text ||
+      route.doc_title ||
+      route.total_pages ||
+      route.outdated_pages ||
+      route.critical_pages ||
+      route.health_percent
   );
 }
 
-export function getHealthTone(percent: number, route?: DashboardRoute) {
-  if (route && !hasAuditData(route)) return "neutral";
-  if (percent < 40) return "danger";
-  if (percent < 75) return "warning";
+export function getRouteTone(route: DashboardRoute): "success" | "warning" | "danger" | "neutral" {
+  if (!hasRealSnapshot(route)) return "neutral";
+  if (route.health_percent < 40) return "danger";
+  if (route.health_percent < 75) return "warning";
   return "success";
 }
 
-export function getHealthLabel(percent: number, route?: DashboardRoute) {
-  if (route && !hasAuditData(route)) return "Sem auditoria";
-  if (percent < 40) return "Crítico";
-  if (percent < 75) return "Atenção";
+export function getRouteBadge(route: DashboardRoute): string {
+  if (!hasRealSnapshot(route)) return "Sem auditoria";
+  if (route.health_percent < 40) return "Crítico";
+  if (route.health_percent < 75) return "Atenção";
   return "Saudável";
 }
 
-export function getRerunUrl(routeKey: string) {
-  return `https://wandering-disk-47a9.tsvini111.workers.dev/?routeKey=${encodeURIComponent(routeKey)}`;
+export function formatBrazilDate(dateString?: string): string {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date
+    .toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    .replace(",", " às");
 }

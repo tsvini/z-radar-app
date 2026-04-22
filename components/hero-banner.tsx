@@ -1,15 +1,20 @@
-type HeroBannerProps = {
-  apiUrl: string;
-};
+import Image from "next/image";
 
-export function HeroBanner({ apiUrl }: HeroBannerProps) {
+export function HeroBanner() {
   return (
     <section className="heroCard">
       <div className="heroBadge">Plataforma operacional</div>
 
       <div className="heroHeader">
         <div className="heroBrand">
-          <img src="/zradar-logo.png" alt="Z-Radar" className="heroLogo" />
+          <Image
+            src="/zradar-logo.png"
+            alt="Z-Radar"
+            width={260}
+            height={90}
+            className="heroLogo"
+            priority
+          />
 
           <div className="heroCopy">
             <p className="heroEyebrow">
@@ -18,7 +23,7 @@ export function HeroBanner({ apiUrl }: HeroBannerProps) {
             <p className="heroDescription">
               Auditoria e monitoramento inteligente da documentação, com visão
               consolidada das rotas, saúde geral, pendências por responsável e
-              acesso rápido aos artefatos.
+              acompanhamento executivo dos artefatos.
             </p>
           </div>
         </div>
