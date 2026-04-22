@@ -5,11 +5,11 @@ type HeroBannerProps = {
 export function HeroBanner({ apiUrl }: HeroBannerProps) {
   return (
     <section className="heroCard">
-      <div className="heroBadge">✦ Plataforma operacional</div>
+      <div className="heroBadge">Plataforma operacional</div>
 
       <div className="heroHeader">
         <div className="heroBrand">
-          <img src="/zradar-logo.png" alt="Z-Radar" className="heroLogo" />
+          <img src="/zallpy.png" alt="Z-Radar" className="heroLogo" />
 
           <div className="heroCopy">
             <p className="heroEyebrow">

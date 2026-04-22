@@ -29,7 +29,7 @@ export function Sidebar() {
 
         <div className="sidebarBrand">
           <div className="sidebarLogoWrap">
-            <img src="/zradar-logo.png" alt="Z-Radar" className="sidebarLogo" />
+            <img src="/zallpy.png" alt="Z-Radar" className="sidebarLogo" />
           </div>
 
           {!collapsed && (
@@ -55,10 +55,10 @@ export function Sidebar() {
               <span className="sidebarItemIcon">{item.icon}</span>
 
               {!collapsed && (
-                <>
+                <div className="sidebarItemContent">
                   <span className="sidebarItemLabel">{item.label}</span>
-                  {item.soon && <span className="soonBadge">Em breve</span>}
-                </>
+                  {item.soon ? <span className="soonBadge">Em breve</span> : null}
+                </div>
               )}
             </a>
           ))}
@@ -66,13 +66,12 @@ export function Sidebar() {
       </div>
 
       {!collapsed && (
-        <>
+        <div className="sidebarBottomCards">
           <div className="sidebarInfoCard">
             <span className="sidebarInfoKicker">Módulo ativo</span>
             <strong>Auditoria documental</strong>
             <p>
-              O fluxo atual já está operacional e serve como base visual e técnica
-              para os próximos módulos.
+              Fluxo principal já operacional, com visão consolidada da saúde documental.
             </p>
           </div>
 
@@ -80,10 +79,10 @@ export function Sidebar() {
             <span className="sidebarInfoKicker">Próximo passo</span>
             <strong>Integração completa</strong>
             <p>
-              Histórico, IA, pendências e ações operacionais no mesmo layout.
+              Histórico, pendências, insights e ações executivas no mesmo painel.
             </p>
           </div>
-        </>
+        </div>
       )}
     </aside>
   );

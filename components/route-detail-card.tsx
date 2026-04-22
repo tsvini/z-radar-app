@@ -31,6 +31,23 @@ function getLabel(percent: number, totalPages: number) {
   return "Auditoria saudável";
 }
 
+function formatBrazilDate(value?: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date
+    .toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    .replace(",", " às");
+}
+
 export function RouteDetailCard({ route }: RouteDetailCardProps) {
   const health = Number(route.health_percent || 0);
   const totalPages = Number(route.total_pages || 0);
@@ -39,6 +56,7 @@ export function RouteDetailCard({ route }: RouteDetailCardProps) {
 
   const tone = getTone(health, totalPages);
   const label = getLabel(health, totalPages);
+  const capturedAt = formatBrazilDate(route.captured_at);
 
   return (
     <article className="routeDetailCard">
@@ -58,9 +76,8 @@ export function RouteDetailCard({ route }: RouteDetailCardProps) {
 
       <div className="routeDetailMeta">
         <span className={`routeBadge ${tone}`}>{label}</span>
-
-        {route.captured_at ? (
-          <span className="routeCapturedAt">{route.captured_at}</span>
+        {capturedAt ? (
+          <span className="routeCapturedAt">Atualizado em {capturedAt}</span>
         ) : null}
       </div>
 
@@ -95,17 +112,6 @@ export function RouteDetailCard({ route }: RouteDetailCardProps) {
       ) : null}
 
       <div className="detailActions">
-        {route.doc_link ? (
-          <a
-            className="primaryButton"
-            href={route.doc_link}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Abrir documento
-          </a>
-        ) : null}
-
         <a
           className="secondaryButton"
           href={`https://wandering-disk-47a9.tsvini111.workers.dev/?routeKey=${route.key}`}
@@ -114,17 +120,6 @@ export function RouteDetailCard({ route }: RouteDetailCardProps) {
         >
           Reexecutar auditoria
         </a>
-
-        {route.ai_generation_url ? (
-          <a
-            className="secondaryButton"
-            href={route.ai_generation_url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Gerar texto com IA
-          </a>
-        ) : null}
       </div>
     </article>
   );

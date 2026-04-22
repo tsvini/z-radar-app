@@ -3,12 +3,15 @@ type UpcomingModuleCardProps = {
   description: string;
 };
 
-export function UpcomingModuleCard({ title, description }: UpcomingModuleCardProps) {
+export function UpcomingModuleCard({
+  title,
+  description,
+}: UpcomingModuleCardProps) {
   return (
-    <div className="upcomingCard">
-      <div className="soonBadge solid">Em breve</div>
+    <article className="upcomingModuleCard">
+      <div className="upcomingBadge">Em breve</div>
       <h3 className="upcomingTitle">{title}</h3>
-      <p className="upcomingText">{description}</p>
-    </div>
+      <p className="upcomingDescription">{description}</p>
+    </article>
   );
 }
