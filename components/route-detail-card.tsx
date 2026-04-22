@@ -1,105 +1,76 @@
-import { DashboardRoute, formatOwnersMessage, getHealthLabel, getHealthTone } from "@/lib/dashboard";
+import { getHealthLabel, getHealthTone, type DashboardRoute } from "@/lib/dashboard";
 
-type Props = {
+type RouteDetailCardProps = {
   route: DashboardRoute;
 };
 
-export function RouteDetailCard({ route }: Props) {
-  const tone = getHealthTone(route.health_percent);
-  const toneClass =
-    tone === "danger"
-      ? "toneDanger"
-      : tone === "warning"
-      ? "toneWarning"
-      : "toneSuccess";
-
-  const owners = formatOwnersMessage(route.ownersPendingMessage);
+export function RouteDetailCard({ route }: RouteDetailCardProps) {
+  const tone = getHealthTone(Number(route.health_percent || 0));
+  const label = getHealthLabel(Number(route.health_percent || 0));
 
   return (
     <article className="detailCard">
-      <div className="detailCardTop">
+      <div className="detailCardHeader">
         <div>
-          <h3 className="detailCardTitle">{route.label}</h3>
-          <div className="detailCardSubtitle">
-            Última execução: {route.lastExecution || "Não disponível"}
-          </div>
+          <h3 className="detailTitle">{route.label}</h3>
+          <p className="detailSubtitle">Última execução: {route.lastExecution || "-"}</p>
         </div>
 
-        <div className={`detailHealth ${toneClass}`}>
+        <div className={`detailScore ${tone}`}>
           <strong>{route.health_percent || 0}%</strong>
           <span>Saúde</span>
         </div>
       </div>
 
-      <div className="detailGrid">
-        <div className="detailMetric">
-          <span>Total</span>
-          <strong>{route.total_pages || 0}</strong>
+      <div className="detailBody">
+        <div className="detailStatusRow">
+          <span className={`statusBadge ${tone}`}>{route.status_title || label}</span>
+          <span className="capturedAt">{route.captured_at || ""}</span>
         </div>
-        <div className="detailMetric">
-          <span>Desatualizadas</span>
-          <strong>{route.outdated_pages || 0}</strong>
+
+        <p className="detailText">{route.status_text || "Sem descrição disponível."}</p>
+
+        <div className="detailStats">
+          <div className="detailStat">
+            <span>Total</span>
+            <strong>{route.total_pages || 0}</strong>
+          </div>
+          <div className="detailStat">
+            <span>Desatualizadas</span>
+            <strong>{route.outdated_pages || 0}</strong>
+          </div>
+          <div className="detailStat">
+            <span>Críticas</span>
+            <strong>{route.critical_pages || 0}</strong>
+          </div>
         </div>
-        <div className="detailMetric">
-          <span>Críticas</span>
-          <strong>{route.critical_pages || 0}</strong>
-        </div>
-        <div className="detailMetric">
-          <span>Status</span>
-          <strong>{route.status_title || getHealthLabel(route.health_percent)}</strong>
-        </div>
-      </div>
 
-      <div className="detailTextBlock">
-        <div className="detailSectionLabel">Documento auditado</div>
-        <p>{route.doc_title || "Documento não informado"}</p>
-      </div>
-
-      <div className="detailTextBlock">
-        <div className="detailSectionLabel">Resumo</div>
-        <p>{route.status_text || "Sem resumo disponível."}</p>
-      </div>
-
-      <div className="detailTextBlock">
-        <div className="detailSectionLabel">Pendências por responsável</div>
-        {owners.length ? (
-          <ul className="detailList">
-            {owners.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>Nenhuma pendência registrada.</p>
-        )}
-      </div>
-
-      <div className="detailActions">
-        {route.pdf_link ? (
-          <a href={route.pdf_link} target="_blank" rel="noreferrer" className="btn btnGhost">
-            Abrir PDF
-          </a>
+        {route.ownersPendingMessage ? (
+          <div className="pendingBox">
+            <div className="pendingTitle">Pendências por responsável</div>
+            <p>{route.ownersPendingMessage}</p>
+          </div>
         ) : null}
 
-        {route.doc_link ? (
-          <a href={route.doc_link} target="_blank" rel="noreferrer" className="btn btnGhost">
-            Abrir ClickUp
-          </a>
-        ) : null}
+        <div className="detailActions">
+          {route.doc_link ? (
+            <a href={route.doc_link} target="_blank" rel="noreferrer" className="smallActionButton">
+              Abrir documento
+            </a>
+          ) : null}
 
-        <a
-          href={`https://wandering-disk-47a9.tsvini111.workers.dev/?routeKey=${route.key}`}
-          target="_blank"
-          rel="noreferrer"
-          className="btn btnGhost"
-        >
-          Reexecutar auditoria
-        </a>
+          {route.pdf_link ? (
+            <a href={route.pdf_link} target="_blank" rel="noreferrer" className="smallActionButton ghost">
+              Abrir PDF
+            </a>
+          ) : null}
 
-        {route.ai_generation_url ? (
-          <a href={route.ai_generation_url} target="_blank" rel="noreferrer" className="btn btnPrimary">
-            Gerar texto com IA
-          </a>
-        ) : null}
+          {route.ai_generation_url ? (
+            <a href={route.ai_generation_url} target="_blank" rel="noreferrer" className="smallActionButton ghost">
+              Gerar texto com IA
+            </a>
+          ) : null}
+        </div>
       </div>
     </article>
   );

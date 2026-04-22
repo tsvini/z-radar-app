@@ -24,55 +24,6 @@ export type DashboardResponse = {
   error?: string;
 };
 
-const API_URL =
-  process.env.NEXT_PUBLIC_DASHBOARD_API_URL ||
-  "https://wandering-disk-47a9.tsvini111.workers.dev/api/dashboard";
-
-const API_TOKEN = process.env.DASHBOARD_API_TOKEN || "";
-
-export async function getDashboardData(): Promise<DashboardResponse> {
-  try {
-    const response = await fetch(API_URL, {
-      method: "GET",
-      headers: API_TOKEN
-        ? {
-            Authorization: `Bearer ${API_TOKEN}`,
-            "Content-Type": "application/json",
-          }
-        : {
-            "Content-Type": "application/json",
-          },
-      cache: "no-store",
-    });
-
-    const text = await response.text();
-    const data = text ? JSON.parse(text) : {};
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        productName: "Z-Radar",
-        routes: [],
-        error: data?.error || `Erro HTTP ${response.status}`,
-      };
-    }
-
-    return {
-      ok: Boolean(data?.ok),
-      productName: data?.productName || "Z-Radar",
-      routes: Array.isArray(data?.routes) ? data.routes : [],
-      error: data?.error,
-    };
-  } catch (error) {
-    return {
-      ok: false,
-      productName: "Z-Radar",
-      routes: [],
-      error: error instanceof Error ? error.message : "Erro ao consultar API",
-    };
-  }
-}
-
 export function getHealthTone(percent: number) {
   if (percent < 40) return "danger";
   if (percent < 75) return "warning";
@@ -85,21 +36,56 @@ export function getHealthLabel(percent: number) {
   return "Saudável";
 }
 
-export function formatOwnersMessage(message?: string) {
-  if (!message) return [];
+export async function getDashboardData(): Promise<DashboardResponse> {
+  const apiUrl = process.env.NEXT_PUBLIC_DASHBOARD_API_URL;
+  const apiToken = process.env.DASHBOARD_API_TOKEN;
 
-  return message
-    .split("\n")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
+  if (!apiUrl) {
+    return {
+      ok: false,
+      productName: "Z-Radar",
+      routes: [],
+      error: "NEXT_PUBLIC_DASHBOARD_API_URL não configurada.",
+    };
+  }
 
-export function sumBy(
-  routes: DashboardRoute[],
-  field: keyof Pick<
-    DashboardRoute,
-    "total_pages" | "outdated_pages" | "critical_pages" | "health_percent"
-  >
-) {
-  return routes.reduce((acc, item) => acc + Number(item[field] || 0), 0);
+  if (!apiToken) {
+    return {
+      ok: false,
+      productName: "Z-Radar",
+      routes: [],
+      error: "DASHBOARD_API_TOKEN não configurado.",
+    };
+  }
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    const data = (await response.json()) as DashboardResponse;
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        productName: "Z-Radar",
+        routes: [],
+        error: data?.error || `Erro HTTP ${response.status}`,
+      };
+    }
+
+    return data;
+  } catch (error) {
+    return {
+      ok: false,
+      productName: "Z-Radar",
+      routes: [],
+      error: error instanceof Error ? error.message : "Erro ao buscar dashboard.",
+    };
+  }
 }
