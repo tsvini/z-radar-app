@@ -3,17 +3,17 @@ type RouteItem = {
   label: string;
   description: string;
   lastExecution: string;
-  status: string;
+  status: "Operacional" | "Atenção" | "Em breve";
   auditHref: string;
   historyHref: string;
 };
 
-const monitoredRoutes: RouteItem[] = [
+const routes: RouteItem[] = [
   {
     key: "edutech",
     label: "EduTech",
     description:
-      "Acompanhamento da auditoria documental, histórico operacional e evolução da frente EduTech.",
+      "Auditoria documental, histórico operacional e acompanhamento contínuo da frente EduTech.",
     lastExecution: "21/04/2026 às 23:49",
     status: "Operacional",
     auditHref: "/?routeKey=edutech",
@@ -23,7 +23,7 @@ const monitoredRoutes: RouteItem[] = [
     key: "assistente-virtual",
     label: "Assistente Virtual",
     description:
-      "Monitoramento da documentação, execuções anteriores e contexto operacional da frente Assistente Virtual.",
+      "Monitoramento da documentação, execuções anteriores e contexto da frente Assistente Virtual.",
     lastExecution: "19/04/2026 às 23:27",
     status: "Operacional",
     auditHref: "/?routeKey=assistente-virtual",
@@ -31,13 +31,86 @@ const monitoredRoutes: RouteItem[] = [
   }
 ];
 
-function TopActionButton({
-  href,
+function SidebarItem({
+  label,
+  active = false,
+  href = "#"
+}: {
+  label: string;
+  active?: boolean;
+  href?: string;
+}) {
+  return (
+    <a
+      href={href}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        height: "48px",
+        padding: "0 14px",
+        borderRadius: "14px",
+        textDecoration: "none",
+        color: active ? "#f8fafc" : "#9aabc3",
+        background: active ? "rgba(18,242,118,0.08)" : "transparent",
+        border: active
+          ? "1px solid rgba(18,242,118,0.16)"
+          : "1px solid transparent",
+        fontSize: "15px",
+        fontWeight: active ? 700 : 600,
+        transition: "all 0.2s ease"
+      }}
+    >
+      <span
+        style={{
+          width: "8px",
+          height: "8px",
+          borderRadius: "999px",
+          background: active ? "#19f67d" : "rgba(255,255,255,0.18)",
+          boxShadow: active ? "0 0 14px rgba(25,246,125,0.4)" : "none"
+        }}
+      />
+      {label}
+    </a>
+  );
+}
+
+function StatusPill({ status }: { status: RouteItem["status"] }) {
+  const isOperational = status === "Operacional";
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        height: "32px",
+        padding: "0 12px",
+        borderRadius: "999px",
+        fontSize: "12px",
+        fontWeight: 800,
+        letterSpacing: "0.04em",
+        textTransform: "uppercase",
+        color: isOperational ? "#8df7b9" : "#fde68a",
+        background: isOperational
+          ? "rgba(18,242,118,0.10)"
+          : "rgba(245,158,11,0.10)",
+        border: isOperational
+          ? "1px solid rgba(18,242,118,0.16)"
+          : "1px solid rgba(245,158,11,0.16)"
+      }}
+    >
+      {status}
+    </span>
+  );
+}
+
+function ActionButton({
   children,
+  href,
   primary = false
 }: {
-  href: string;
   children: React.ReactNode;
+  href: string;
   primary?: boolean;
 }) {
   return (
@@ -47,23 +120,22 @@ function TopActionButton({
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        height: "54px",
-        padding: primary ? "0 28px" : "0 18px",
-        borderRadius: "18px",
+        minHeight: "46px",
+        padding: "0 18px",
+        borderRadius: "14px",
         textDecoration: "none",
-        fontWeight: 800,
-        fontSize: "16px",
-        letterSpacing: "-0.02em",
+        fontWeight: 700,
+        fontSize: "14px",
         color: primary ? "#04110a" : "#f8fafc",
         background: primary
-          ? "linear-gradient(135deg, #19f67d 0%, #0fdc67 100%)"
-          : "rgba(255,255,255,0.06)",
+          ? "linear-gradient(135deg, #19f67d 0%, #0ed866 100%)"
+          : "rgba(255,255,255,0.05)",
         border: primary
-          ? "1px solid rgba(25,246,125,0.35)"
+          ? "1px solid rgba(25,246,125,0.22)"
           : "1px solid rgba(255,255,255,0.08)",
         boxShadow: primary
-          ? "0 18px 42px rgba(25,246,125,0.22)"
-          : "inset 0 1px 0 rgba(255,255,255,0.06)"
+          ? "0 14px 30px rgba(25,246,125,0.18)"
+          : "inset 0 1px 0 rgba(255,255,255,0.03)"
       }}
     >
       {children}
@@ -75,74 +147,56 @@ function RouteCard({ route }: { route: RouteItem }) {
   return (
     <div
       style={{
-        borderRadius: "28px",
-        padding: "28px",
+        borderRadius: "24px",
+        padding: "24px",
         background:
-          "linear-gradient(180deg, rgba(10,18,37,0.92), rgba(7,14,28,0.92))",
-        border: "1px solid rgba(18,242,118,0.10)",
+          "linear-gradient(180deg, rgba(9,16,31,0.86), rgba(7,12,25,0.92))",
+        border: "1px solid rgba(255,255,255,0.06)",
         boxShadow:
-          "0 24px 60px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)"
+          "0 22px 50px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.03)"
       }}
     >
       <div
         style={{
           display: "flex",
-          alignItems: "flex-start",
           justifyContent: "space-between",
-          gap: "18px",
+          gap: "16px",
+          alignItems: "flex-start",
           flexWrap: "wrap"
         }}
       >
-        <div style={{ maxWidth: "760px" }}>
+        <div style={{ flex: 1, minWidth: "260px" }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "14px",
+              gap: "12px",
               flexWrap: "wrap",
-              marginBottom: "14px"
+              marginBottom: "10px"
             }}
           >
             <h3
               style={{
                 margin: 0,
-                fontSize: "42px",
-                lineHeight: 1,
-                letterSpacing: "-0.05em",
+                fontSize: "30px",
+                lineHeight: 1.05,
+                letterSpacing: "-0.04em",
                 fontWeight: 800,
                 color: "#f8fafc"
               }}
             >
               {route.label}
             </h3>
-
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                height: "34px",
-                padding: "0 14px",
-                borderRadius: "999px",
-                fontSize: "12px",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                color: "#8df7b9",
-                background: "rgba(18,242,118,0.10)",
-                border: "1px solid rgba(18,242,118,0.18)"
-              }}
-            >
-              {route.status}
-            </span>
+            <StatusPill status={route.status} />
           </div>
 
           <p
             style={{
               margin: "0 0 18px",
-              maxWidth: "850px",
-              color: "#9fb0c9",
-              fontSize: "18px",
-              lineHeight: 1.7
+              color: "#9cafc8",
+              fontSize: "16px",
+              lineHeight: 1.7,
+              maxWidth: "720px"
             }}
           >
             {route.description}
@@ -152,14 +206,14 @@ function RouteCard({ route }: { route: RouteItem }) {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "14px",
-              marginBottom: "22px"
+              gap: "12px",
+              marginBottom: "18px"
             }}
           >
             <div
               style={{
-                borderRadius: "18px",
-                padding: "16px 18px",
+                borderRadius: "16px",
+                padding: "14px 16px",
                 background: "rgba(255,255,255,0.03)",
                 border: "1px solid rgba(255,255,255,0.05)"
               }}
@@ -167,7 +221,7 @@ function RouteCard({ route }: { route: RouteItem }) {
               <div
                 style={{
                   color: "#7f91aa",
-                  fontSize: "12px",
+                  fontSize: "11px",
                   textTransform: "uppercase",
                   fontWeight: 700,
                   letterSpacing: "0.06em",
@@ -178,10 +232,10 @@ function RouteCard({ route }: { route: RouteItem }) {
               </div>
               <div
                 style={{
-                  color: "#f8fafc",
-                  fontSize: "18px",
+                  color: "#f1f5fb",
+                  fontSize: "16px",
                   fontWeight: 700,
-                  lineHeight: 1.4
+                  lineHeight: 1.5
                 }}
               >
                 {route.lastExecution}
@@ -190,8 +244,8 @@ function RouteCard({ route }: { route: RouteItem }) {
 
             <div
               style={{
-                borderRadius: "18px",
-                padding: "16px 18px",
+                borderRadius: "16px",
+                padding: "14px 16px",
                 background: "rgba(255,255,255,0.03)",
                 border: "1px solid rgba(255,255,255,0.05)"
               }}
@@ -199,19 +253,19 @@ function RouteCard({ route }: { route: RouteItem }) {
               <div
                 style={{
                   color: "#7f91aa",
-                  fontSize: "12px",
+                  fontSize: "11px",
                   textTransform: "uppercase",
                   fontWeight: 700,
                   letterSpacing: "0.06em",
                   marginBottom: "6px"
                 }}
               >
-                Chave da rota
+                Identificador
               </div>
               <div
                 style={{
-                  color: "#d9e5f4",
-                  fontSize: "17px",
+                  color: "#d9e4f3",
+                  fontSize: "15px",
                   fontWeight: 600
                 }}
               >
@@ -223,63 +277,24 @@ function RouteCard({ route }: { route: RouteItem }) {
           <div
             style={{
               display: "flex",
-              gap: "12px",
+              gap: "10px",
               flexWrap: "wrap"
             }}
           >
-            <a
-              href={route.auditHref}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: "54px",
-                padding: "0 22px",
-                borderRadius: "18px",
-                textDecoration: "none",
-                fontWeight: 800,
-                fontSize: "16px",
-                color: "#04110a",
-                background:
-                  "linear-gradient(135deg, #19f67d 0%, #11de68 100%)",
-                border: "1px solid rgba(25,246,125,0.35)",
-                boxShadow: "0 16px 34px rgba(25,246,125,0.20)"
-              }}
-            >
+            <ActionButton href={route.auditHref} primary>
               Abrir auditoria
-            </a>
-
-            <a
-              href={route.historyHref}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: "54px",
-                padding: "0 22px",
-                borderRadius: "18px",
-                textDecoration: "none",
-                fontWeight: 800,
-                fontSize: "16px",
-                color: "#f8fafc",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)"
-              }}
-            >
-              Ver histórico
-            </a>
-
+            </ActionButton>
+            <ActionButton href={route.historyHref}>Ver histórico</ActionButton>
             <span
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                justifyContent: "center",
-                minHeight: "54px",
-                padding: "0 22px",
-                borderRadius: "18px",
-                fontWeight: 800,
-                fontSize: "16px",
-                color: "#8ea1bc",
+                minHeight: "46px",
+                padding: "0 18px",
+                borderRadius: "14px",
+                fontWeight: 700,
+                fontSize: "14px",
+                color: "#95a6be",
                 background: "rgba(255,255,255,0.04)",
                 border: "1px solid rgba(255,255,255,0.06)"
               }}
@@ -293,39 +308,76 @@ function RouteCard({ route }: { route: RouteItem }) {
   );
 }
 
-function GhostPanel({
+function SoftPanel({
   title,
-  children
+  description,
+  badge
 }: {
   title: string;
-  children: React.ReactNode;
+  description: string;
+  badge?: string;
 }) {
   return (
-    <section
+    <div
       style={{
-        borderRadius: "30px",
-        padding: "30px",
-        background:
-          "linear-gradient(180deg, rgba(7,15,30,0.90), rgba(5,10,22,0.92))",
-        border: "1px solid rgba(255,255,255,0.06)",
-        boxShadow:
-          "0 28px 70px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.04)"
+        borderRadius: "22px",
+        padding: "22px",
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.05)"
       }}
     >
-      <h2
+      <div
         style={{
-          margin: "0 0 22px",
-          fontSize: "44px",
-          lineHeight: 1,
-          letterSpacing: "-0.05em",
-          fontWeight: 800,
-          color: "#f8fafc"
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "12px",
+          alignItems: "flex-start",
+          marginBottom: "10px"
         }}
       >
-        {title}
-      </h2>
-      {children}
-    </section>
+        <div
+          style={{
+            fontSize: "22px",
+            fontWeight: 800,
+            lineHeight: 1.15,
+            letterSpacing: "-0.03em"
+          }}
+        >
+          {title}
+        </div>
+
+        {badge ? (
+          <span
+            style={{
+              flex: "0 0 auto",
+              display: "inline-flex",
+              alignItems: "center",
+              height: "32px",
+              padding: "0 12px",
+              borderRadius: "999px",
+              fontSize: "11px",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              color: "#dce6f4",
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.06)"
+            }}
+          >
+            {badge}
+          </span>
+        ) : null}
+      </div>
+
+      <div
+        style={{
+          color: "#95a7bf",
+          fontSize: "15px",
+          lineHeight: 1.75
+        }}
+      >
+        {description}
+      </div>
+    </div>
   );
 }
 
@@ -334,9 +386,9 @@ export default function Home() {
     <main
       style={{
         minHeight: "100vh",
-        color: "#f8fafc",
         background:
-          "linear-gradient(180deg, #040915 0%, #07111f 48%, #030814 100%)",
+          "radial-gradient(circle at top left, rgba(18,242,118,0.08), transparent 24%), linear-gradient(180deg, #030813 0%, #06101d 45%, #030914 100%)",
+        color: "#f8fafc",
         position: "relative",
         overflow: "hidden"
       }}
@@ -347,524 +399,505 @@ export default function Home() {
           inset: 0,
           pointerEvents: "none",
           background: `
-            radial-gradient(circle at 12% 18%, rgba(18,242,118,0.22), transparent 24%),
-            radial-gradient(circle at 78% 16%, rgba(22,163,255,0.14), transparent 22%),
-            radial-gradient(circle at 52% 72%, rgba(18,242,118,0.12), transparent 28%),
-            radial-gradient(circle at 22% 88%, rgba(18,242,118,0.10), transparent 24%)
+            radial-gradient(ellipse at 12% 18%, rgba(18,242,118,0.18) 0%, transparent 28%),
+            radial-gradient(ellipse at 82% 10%, rgba(0,160,255,0.10) 0%, transparent 26%),
+            radial-gradient(ellipse at 65% 78%, rgba(18,242,118,0.10) 0%, transparent 30%),
+            radial-gradient(ellipse at 18% 85%, rgba(18,242,118,0.08) 0%, transparent 24%)
           `,
-          filter: "blur(12px)"
+          filter: "blur(26px)",
+          animation: "auroraFloat 14s ease-in-out infinite"
         }}
       />
 
       <div
         style={{
-          position: "fixed",
-          inset: "-10%",
-          pointerEvents: "none",
-          background:
-            "linear-gradient(135deg, rgba(18,242,118,0.10), transparent 24%, transparent 62%, rgba(18,242,118,0.08))",
-          animation: "auroraShift 16s ease-in-out infinite"
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: "1380px",
+          maxWidth: "1480px",
           margin: "0 auto",
-          padding: "28px 28px 60px",
+          padding: "24px",
           position: "relative",
           zIndex: 1
         }}
       >
-        <header
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "24px",
-            padding: "26px 28px",
-            borderRadius: "30px",
-            background:
-              "linear-gradient(180deg, rgba(7,15,30,0.88), rgba(5,10,22,0.92))",
-            border: "1px solid rgba(255,255,255,0.06)",
-            boxShadow:
-              "0 24px 70px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)",
-            marginBottom: "24px",
-            flexWrap: "wrap"
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
-            <div
-              style={{
-                width: "74px",
-                height: "74px",
-                borderRadius: "22px",
-                background:
-                  "linear-gradient(135deg, rgba(18,242,118,0.18), rgba(18,242,118,0.04))",
-                border: "1px solid rgba(18,242,118,0.18)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 0 34px rgba(18,242,118,0.12)"
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "38px",
-                  lineHeight: 1,
-                  fontWeight: 900,
-                  color: "#19f67d",
-                  textShadow: "0 0 20px rgba(25,246,125,0.22)"
-                }}
-              >
-                Z
-              </span>
-            </div>
-
-            <div>
-              <div
-                style={{
-                  color: "#8ec5ff",
-                  fontSize: "14px",
-                  fontWeight: 800,
-                  letterSpacing: "0.10em",
-                  textTransform: "uppercase",
-                  marginBottom: "6px"
-                }}
-              >
-                Z-Radar Platform
-              </div>
-
-              <div
-                style={{
-                  fontSize: "56px",
-                  lineHeight: 0.95,
-                  letterSpacing: "-0.06em",
-                  fontWeight: 800,
-                  marginBottom: "8px"
-                }}
-              >
-                Z-Radar
-              </div>
-
-              <div
-                style={{
-                  color: "#8fa2bc",
-                  fontSize: "20px",
-                  lineHeight: 1.5,
-                  maxWidth: "760px"
-                }}
-              >
-                Auditoria documental, histórico operacional e estrutura pronta
-                para inteligência contextual.
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <TopActionButton href="/?routeKey=all" primary>
-              Abrir auditoria documental
-            </TopActionButton>
-            <TopActionButton href="/configuracoes">
-              Configurações
-            </TopActionButton>
-          </div>
-        </header>
-
-        <section
+        <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1.45fr 1fr",
-            gap: "24px",
-            marginBottom: "24px"
+            gridTemplateColumns: "280px minmax(0, 1fr)",
+            gap: "24px"
           }}
         >
-          <section
+          <aside
             style={{
-              borderRadius: "34px",
-              padding: "34px",
+              position: "sticky",
+              top: "24px",
+              alignSelf: "start",
+              borderRadius: "30px",
+              padding: "22px",
               background:
-                "linear-gradient(135deg, rgba(4,17,34,0.88), rgba(4,20,18,0.84))",
-              border: "1px solid rgba(18,242,118,0.14)",
+                "linear-gradient(180deg, rgba(8,14,29,0.90), rgba(5,10,22,0.94))",
+              border: "1px solid rgba(255,255,255,0.06)",
               boxShadow:
-                "0 36px 90px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)"
+                "0 24px 60px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.03)"
             }}
           >
             <div
               style={{
-                display: "inline-flex",
+                display: "flex",
                 alignItems: "center",
-                height: "38px",
-                padding: "0 16px",
-                borderRadius: "999px",
-                background: "rgba(18,242,118,0.10)",
-                border: "1px solid rgba(18,242,118,0.18)",
-                color: "#8df7b9",
-                fontSize: "13px",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
+                gap: "14px",
                 marginBottom: "24px"
               }}
             >
-              Painel central
-            </div>
-
-            <h1
-              style={{
-                margin: "0 0 20px",
-                fontSize: "72px",
-                lineHeight: 0.96,
-                letterSpacing: "-0.07em",
-                fontWeight: 800,
-                maxWidth: "840px"
-              }}
-            >
-              A operação do Z-RADAR começa pelas rotas monitoradas
-            </h1>
-
-            <p
-              style={{
-                margin: "0 0 28px",
-                color: "#a0b2c9",
-                fontSize: "20px",
-                lineHeight: 1.8,
-                maxWidth: "900px"
-              }}
-            >
-              Visualize as frentes ativas, abra a auditoria documental, consulte
-              históricos por rota e prepare o terreno para a camada futura de IA
-              com contexto real da operação.
-            </p>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gap: "16px"
-              }}
-            >
               <div
                 style={{
-                  borderRadius: "22px",
-                  padding: "20px",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.05)"
+                  width: "62px",
+                  height: "62px",
+                  borderRadius: "18px",
+                  background:
+                    "linear-gradient(135deg, rgba(18,242,118,0.18), rgba(18,242,118,0.05))",
+                  border: "1px solid rgba(18,242,118,0.16)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 0 28px rgba(18,242,118,0.12)"
                 }}
               >
-                <div style={{ color: "#8ea2bd", fontSize: "15px", marginBottom: "10px" }}>
-                  Rotas monitoradas
-                </div>
-                <div style={{ fontSize: "54px", fontWeight: 800, lineHeight: 1 }}>
-                  2
-                </div>
+                <span
+                  style={{
+                    fontSize: "34px",
+                    lineHeight: 1,
+                    fontWeight: 900,
+                    color: "#19f67d"
+                  }}
+                >
+                  Z
+                </span>
               </div>
 
-              <div
-                style={{
-                  borderRadius: "22px",
-                  padding: "20px",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.05)"
-                }}
-              >
-                <div style={{ color: "#8ea2bd", fontSize: "15px", marginBottom: "10px" }}>
-                  Histórico
+              <div>
+                <div
+                  style={{
+                    color: "#7fc6ff",
+                    fontSize: "12px",
+                    fontWeight: 800,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    marginBottom: "4px"
+                  }}
+                >
+                  Z-Radar
                 </div>
-                <div style={{ fontSize: "54px", fontWeight: 800, lineHeight: 1 }}>
-                  2
-                </div>
-              </div>
-
-              <div
-                style={{
-                  borderRadius: "22px",
-                  padding: "20px",
-                  background: "rgba(18,242,118,0.07)",
-                  border: "1px solid rgba(18,242,118,0.14)"
-                }}
-              >
-                <div style={{ color: "#98eeb9", fontSize: "15px", marginBottom: "10px" }}>
-                  IA operacional
-                </div>
-                <div style={{ fontSize: "42px", fontWeight: 800, lineHeight: 1.1 }}>
-                  Em breve
+                <div
+                  style={{
+                    fontSize: "24px",
+                    lineHeight: 1,
+                    fontWeight: 800,
+                    letterSpacing: "-0.04em"
+                  }}
+                >
+                  Platform
                 </div>
               </div>
             </div>
-          </section>
 
-          <section
-            style={{
-              borderRadius: "34px",
-              padding: "30px",
-              background:
-                "linear-gradient(180deg, rgba(6,15,31,0.90), rgba(4,10,24,0.94))",
-              border: "1px solid rgba(255,255,255,0.06)",
-              boxShadow:
-                "0 32px 80px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.04)"
-            }}
-          >
-            <div
-              style={{
-                color: "#7fc6ff",
-                fontSize: "15px",
-                fontWeight: 800,
-                letterSpacing: "0.10em",
-                textTransform: "uppercase",
-                marginBottom: "20px"
-              }}
-            >
-              Workspace IA
+            <div style={{ display: "grid", gap: "8px", marginBottom: "26px" }}>
+              <SidebarItem label="Dashboard" active href="/" />
+              <SidebarItem label="Auditoria documental" href="/?routeKey=all" />
+              <SidebarItem label="Rotas monitoradas" href="#rotas" />
+              <SidebarItem label="Histórico" href="/historico/edutech" />
+              <SidebarItem label="Workspace IA" href="#ia" />
+              <SidebarItem label="Configurações" href="/configuracoes" />
             </div>
 
             <div
               style={{
-                borderRadius: "28px",
-                padding: "28px",
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                marginBottom: "18px"
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "30px",
-                  lineHeight: 1.1,
-                  fontWeight: 800,
-                  marginBottom: "14px"
-                }}
-              >
-                Chat operacional com IA
-              </div>
-              <div
-                style={{
-                  color: "#9cb0ca",
-                  fontSize: "18px",
-                  lineHeight: 1.8,
-                  marginBottom: "18px"
-                }}
-              >
-                Espaço reservado para conversas contextuais sobre rotas,
-                documentação, auditorias, relatórios e acompanhamento da operação.
-              </div>
-
-              <div
-                style={{
-                  borderRadius: "22px",
-                  padding: "20px 22px",
-                  background: "rgba(18,242,118,0.06)",
-                  border: "1px solid rgba(18,242,118,0.12)",
-                  color: "#d6f7e5",
-                  fontSize: "18px",
-                  lineHeight: 1.7
-                }}
-              >
-                Aqui depois entra o chat, os prompts rápidos e o resumo
-                inteligente da operação.
-              </div>
-            </div>
-
-            <div
-              style={{
-                borderRadius: "22px",
-                padding: "22px",
+                borderRadius: "20px",
+                padding: "18px",
                 background: "rgba(255,255,255,0.03)",
                 border: "1px solid rgba(255,255,255,0.05)"
               }}
             >
               <div
                 style={{
-                  fontSize: "18px",
-                  fontWeight: 800,
+                  color: "#7f91aa",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
                   marginBottom: "8px"
                 }}
               >
-                Relatórios inteligentes
+                Estado da plataforma
               </div>
               <div
                 style={{
-                  color: "#92a4bc",
+                  color: "#f8fafc",
                   fontSize: "16px",
                   lineHeight: 1.7,
-                  marginBottom: "14px"
+                  fontWeight: 600
                 }}
               >
-                Consolidação futura de execução, falhas, pendências e leitura
-                assistida.
-              </div>
-
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  height: "36px",
-                  padding: "0 14px",
-                  borderRadius: "999px",
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  color: "#d7deea",
-                  fontSize: "13px",
-                  fontWeight: 800,
-                  textTransform: "uppercase"
-                }}
-              >
-                Em breve
+                Auditoria documental ativa
               </div>
             </div>
-          </section>
-        </section>
+          </aside>
 
-        <section
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.55fr 1fr",
-            gap: "24px"
-          }}
-        >
-          <GhostPanel title="Rotas monitoradas">
+          <section>
+            <header
+              style={{
+                borderRadius: "32px",
+                padding: "30px",
+                background:
+                  "linear-gradient(180deg, rgba(8,14,29,0.88), rgba(5,10,22,0.94))",
+                border: "1px solid rgba(255,255,255,0.06)",
+                boxShadow:
+                  "0 24px 70px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.03)",
+                marginBottom: "24px"
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: "20px",
+                  flexWrap: "wrap",
+                  alignItems: "center"
+                }}
+              >
+                <div style={{ maxWidth: "760px" }}>
+                  <div
+                    style={{
+                      color: "#8ec5ff",
+                      fontSize: "13px",
+                      fontWeight: 800,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      marginBottom: "10px"
+                    }}
+                  >
+                    Z-Radar Platform
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "56px",
+                      lineHeight: 0.95,
+                      letterSpacing: "-0.06em",
+                      fontWeight: 800,
+                      marginBottom: "12px"
+                    }}
+                  >
+                    Z-Radar
+                  </div>
+
+                  <div
+                    style={{
+                      color: "#97aac3",
+                      fontSize: "18px",
+                      lineHeight: 1.75,
+                      maxWidth: "900px"
+                    }}
+                  >
+                    Auditoria documental, histórico operacional e estrutura
+                    pronta para inteligência contextual.
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    flexWrap: "wrap"
+                  }}
+                >
+                  <ActionButton href="/?routeKey=all" primary>
+                    Abrir auditoria documental
+                  </ActionButton>
+                  <ActionButton href="/configuracoes">
+                    Configurações
+                  </ActionButton>
+                </div>
+              </div>
+            </header>
+
             <div
               style={{
                 display: "grid",
-                gap: "18px"
+                gridTemplateColumns: "1.2fr 0.8fr",
+                gap: "24px",
+                marginBottom: "24px"
               }}
             >
-              {monitoredRoutes.map((route) => (
-                <RouteCard key={route.key} route={route} />
-              ))}
-            </div>
-          </GhostPanel>
-
-          <GhostPanel title="Próximos blocos">
-            <div style={{ display: "grid", gap: "16px" }}>
-              {[
-                "Análise com IA",
-                "Histórico de execuções",
-                "Pendências por responsável",
-                "Alertas automáticos"
-              ].map((item) => (
-                <div
-                  key={item}
-                  style={{
-                    borderRadius: "24px",
-                    padding: "22px",
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.05)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "16px"
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "18px",
-                        fontWeight: 800,
-                        marginBottom: "8px"
-                      }}
-                    >
-                      {item}
-                    </div>
-                    <div
-                      style={{
-                        color: "#92a4bc",
-                        fontSize: "16px",
-                        lineHeight: 1.7
-                      }}
-                    >
-                      Espaço reservado para evolução futura da plataforma.
-                    </div>
-                  </div>
-
-                  <span
-                    style={{
-                      flex: "0 0 auto",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      height: "38px",
-                      padding: "0 14px",
-                      borderRadius: "999px",
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.06)",
-                      fontSize: "12px",
-                      fontWeight: 800,
-                      textTransform: "uppercase",
-                      color: "#d7deea"
-                    }}
-                  >
-                    Em breve
-                  </span>
-                </div>
-              ))}
-
-              <div
+              <section
                 style={{
-                  marginTop: "2px",
-                  borderRadius: "26px",
-                  padding: "24px",
-                  background: "rgba(18,242,118,0.06)",
-                  border: "1px solid rgba(18,242,118,0.12)"
+                  borderRadius: "32px",
+                  padding: "34px",
+                  background:
+                    "linear-gradient(135deg, rgba(4,17,34,0.88), rgba(4,20,18,0.80))",
+                  border: "1px solid rgba(18,242,118,0.12)",
+                  boxShadow:
+                    "0 30px 80px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.03)"
                 }}
               >
                 <div
                   style={{
-                    fontSize: "20px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    height: "36px",
+                    padding: "0 14px",
+                    borderRadius: "999px",
+                    background: "rgba(18,242,118,0.10)",
+                    border: "1px solid rgba(18,242,118,0.16)",
+                    color: "#8df7b9",
+                    fontSize: "12px",
                     fontWeight: 800,
-                    marginBottom: "10px"
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    marginBottom: "20px"
                   }}
                 >
-                  Direção do produto
+                  Painel central
                 </div>
+
+                <h1
+                  style={{
+                    margin: "0 0 18px",
+                    fontSize: "clamp(38px, 5vw, 64px)",
+                    lineHeight: 0.98,
+                    letterSpacing: "-0.06em",
+                    fontWeight: 800,
+                    maxWidth: "820px"
+                  }}
+                >
+                  A operação do Z-RADAR começa pelas rotas monitoradas
+                </h1>
+
+                <p
+                  style={{
+                    margin: "0 0 26px",
+                    color: "#9cb0ca",
+                    fontSize: "18px",
+                    lineHeight: 1.8,
+                    maxWidth: "860px"
+                  }}
+                >
+                  Visualize as frentes ativas, abra a auditoria documental,
+                  consulte históricos por rota e prepare o terreno para a camada
+                  futura de IA com contexto real da operação.
+                </p>
+
                 <div
                   style={{
-                    color: "#a4b8cf",
-                    fontSize: "18px",
-                    lineHeight: 1.75
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                    gap: "14px"
                   }}
                 >
-                  O próximo salto é ligar histórico real por rota, relatórios
-                  inteligentes e a camada conversacional da IA dentro da mesma
-                  experiência visual.
+                  <div
+                    style={{
+                      borderRadius: "20px",
+                      padding: "18px",
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.05)"
+                    }}
+                  >
+                    <div style={{ color: "#8ea2bd", fontSize: "14px", marginBottom: "10px" }}>
+                      Rotas monitoradas
+                    </div>
+                    <div style={{ fontSize: "44px", fontWeight: 800 }}>2</div>
+                  </div>
+
+                  <div
+                    style={{
+                      borderRadius: "20px",
+                      padding: "18px",
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.05)"
+                    }}
+                  >
+                    <div style={{ color: "#8ea2bd", fontSize: "14px", marginBottom: "10px" }}>
+                      Históricos ativos
+                    </div>
+                    <div style={{ fontSize: "44px", fontWeight: 800 }}>2</div>
+                  </div>
+
+                  <div
+                    style={{
+                      borderRadius: "20px",
+                      padding: "18px",
+                      background: "rgba(18,242,118,0.07)",
+                      border: "1px solid rgba(18,242,118,0.12)"
+                    }}
+                  >
+                    <div style={{ color: "#98eeb9", fontSize: "14px", marginBottom: "10px" }}>
+                      Camada IA
+                    </div>
+                    <div style={{ fontSize: "32px", fontWeight: 800, lineHeight: 1.1 }}>
+                      Em breve
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </section>
+
+              <section id="ia">
+                <div
+                  style={{
+                    borderRadius: "32px",
+                    padding: "28px",
+                    background:
+                      "linear-gradient(180deg, rgba(7,15,30,0.90), rgba(5,10,22,0.94))",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    boxShadow:
+                      "0 28px 70px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.03)"
+                  }}
+                >
+                  <div
+                    style={{
+                      color: "#8ec5ff",
+                      fontSize: "13px",
+                      fontWeight: 800,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      marginBottom: "18px"
+                    }}
+                  >
+                    Workspace IA
+                  </div>
+
+                  <div style={{ display: "grid", gap: "16px" }}>
+                    <SoftPanel
+                      title="Chat operacional com IA"
+                      description="Espaço reservado para conversas contextuais sobre rotas, documentação, auditorias, relatórios e acompanhamento da operação."
+                    />
+                    <SoftPanel
+                      title="Relatórios inteligentes"
+                      description="Consolidação futura de execução, falhas, pendências e leitura assistida."
+                      badge="Em breve"
+                    />
+                  </div>
+                </div>
+              </section>
             </div>
-          </GhostPanel>
-        </section>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.25fr 0.75fr",
+                gap: "24px"
+              }}
+            >
+              <section
+                id="rotas"
+                style={{
+                  borderRadius: "32px",
+                  padding: "28px",
+                  background:
+                    "linear-gradient(180deg, rgba(7,15,30,0.90), rgba(5,10,22,0.94))",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  boxShadow:
+                    "0 28px 70px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.03)"
+                }}
+              >
+                <h2
+                  style={{
+                    margin: "0 0 22px",
+                    fontSize: "clamp(28px, 3vw, 44px)",
+                    lineHeight: 1,
+                    letterSpacing: "-0.05em",
+                    fontWeight: 800
+                  }}
+                >
+                  Rotas monitoradas
+                </h2>
+
+                <div style={{ display: "grid", gap: "18px" }}>
+                  {routes.map((route) => (
+                    <RouteCard key={route.key} route={route} />
+                  ))}
+                </div>
+              </section>
+
+              <section
+                style={{
+                  borderRadius: "32px",
+                  padding: "28px",
+                  background:
+                    "linear-gradient(180deg, rgba(7,15,30,0.90), rgba(5,10,22,0.94))",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  boxShadow:
+                    "0 28px 70px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.03)"
+                }}
+              >
+                <h2
+                  style={{
+                    margin: "0 0 22px",
+                    fontSize: "clamp(28px, 3vw, 44px)",
+                    lineHeight: 1,
+                    letterSpacing: "-0.05em",
+                    fontWeight: 800
+                  }}
+                >
+                  Próximos blocos
+                </h2>
+
+                <div style={{ display: "grid", gap: "14px" }}>
+                  <SoftPanel
+                    title="Análise com IA"
+                    description="Espaço reservado para evolução futura da plataforma."
+                    badge="Em breve"
+                  />
+                  <SoftPanel
+                    title="Histórico de execuções"
+                    description="Espaço reservado para evolução futura da plataforma."
+                    badge="Em breve"
+                  />
+                  <SoftPanel
+                    title="Pendências por responsável"
+                    description="Espaço reservado para evolução futura da plataforma."
+                    badge="Em breve"
+                  />
+                  <SoftPanel
+                    title="Alertas automáticos"
+                    description="Espaço reservado para evolução futura da plataforma."
+                    badge="Em breve"
+                  />
+                </div>
+              </section>
+            </div>
+          </section>
+        </div>
       </div>
 
       <style>{`
-        @keyframes auroraShift {
+        @keyframes auroraFloat {
           0%, 100% {
             transform: translate3d(0, 0, 0) scale(1);
-            opacity: 0.9;
+            opacity: 0.95;
           }
           50% {
-            transform: translate3d(0, -2%, 0) scale(1.04);
+            transform: translate3d(0, -2%, 0) scale(1.03);
             opacity: 1;
           }
         }
 
-        @media (max-width: 1200px) {
-          main section[style*="grid-template-columns: 1.45fr 1fr"],
-          main section[style*="grid-template-columns: 1.55fr 1fr"] {
+        @media (max-width: 1180px) {
+          main > div > div {
+            grid-template-columns: 1fr !important;
+          }
+
+          aside {
+            position: relative !important;
+            top: 0 !important;
+          }
+
+          section[style*="grid-template-columns: 1.2fr 0.8fr"],
+          section[style*="grid-template-columns: 1.25fr 0.75fr"] {
             grid-template-columns: 1fr !important;
           }
         }
 
-        @media (max-width: 900px) {
-          h1 {
-            font-size: 48px !important;
-          }
-        }
-
-        @media (max-width: 760px) {
-          header {
-            padding: 20px !important;
-          }
-
-          main {
-            overflow-x: hidden;
+        @media (max-width: 820px) {
+          section[style*="grid-template-columns: repeat(3, minmax(0, 1fr))"] {
+            grid-template-columns: 1fr !important;
           }
         }
       `}</style>
