@@ -19,73 +19,91 @@ export type DashboardRoute = {
 
 export type DashboardResponse = {
   ok: boolean;
+  error?: string;
   productName: string;
   routes: DashboardRoute[];
-  error?: string;
 };
-
-export function getHealthTone(percent: number) {
-  if (percent < 40) return "danger";
-  if (percent < 75) return "warning";
-  return "success";
-}
-
-export function getHealthLabel(percent: number) {
-  if (percent < 40) return "Crítico";
-  if (percent < 75) return "Atenção";
-  return "Saudável";
-}
 
 export async function getDashboardData(): Promise<DashboardResponse> {
   const apiUrl = process.env.NEXT_PUBLIC_DASHBOARD_API_URL;
-  const apiToken = process.env.DASHBOARD_API_TOKEN;
+  const token = process.env.DASHBOARD_API_TOKEN;
 
   if (!apiUrl) {
     return {
       ok: false,
-      productName: "Z-Radar",
-      routes: [],
       error: "NEXT_PUBLIC_DASHBOARD_API_URL não configurada.",
-    };
-  }
-
-  if (!apiToken) {
-    return {
-      ok: false,
       productName: "Z-Radar",
       routes: [],
-      error: "DASHBOARD_API_TOKEN não configurado.",
     };
   }
 
   try {
     const response = await fetch(apiUrl, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-        "Content-Type": "application/json",
-      },
       cache: "no-store",
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+        : {
+            "Content-Type": "application/json",
+          },
     });
 
-    const data = (await response.json()) as DashboardResponse;
+    const data = await response.json();
 
     if (!response.ok) {
       return {
         ok: false,
+        error: data?.error || `Erro ${response.status}`,
         productName: "Z-Radar",
         routes: [],
-        error: data?.error || `Erro HTTP ${response.status}`,
       };
     }
 
-    return data;
+    return {
+      ok: true,
+      productName: data.productName || "Z-Radar",
+      routes: Array.isArray(data.routes) ? data.routes : [],
+    };
   } catch (error) {
     return {
       ok: false,
+      error: error instanceof Error ? error.message : "Falha ao buscar dados da API.",
       productName: "Z-Radar",
       routes: [],
-      error: error instanceof Error ? error.message : "Erro ao buscar dashboard.",
     };
   }
+}
+
+export function hasAuditData(route: DashboardRoute) {
+  return (
+    Number(route.total_pages || 0) > 0 ||
+    Number(route.outdated_pages || 0) > 0 ||
+    Number(route.critical_pages || 0) > 0 ||
+    Number(route.health_percent || 0) > 0 ||
+    Boolean(route.status_title) ||
+    Boolean(route.status_text) ||
+    Boolean(route.doc_title) ||
+    Boolean(route.captured_at)
+  );
+}
+
+export function getHealthTone(percent: number, route?: DashboardRoute) {
+  if (route && !hasAuditData(route)) return "neutral";
+  if (percent < 40) return "danger";
+  if (percent < 75) return "warning";
+  return "success";
+}
+
+export function getHealthLabel(percent: number, route?: DashboardRoute) {
+  if (route && !hasAuditData(route)) return "Sem auditoria";
+  if (percent < 40) return "Crítico";
+  if (percent < 75) return "Atenção";
+  return "Saudável";
+}
+
+export function getRerunUrl(routeKey: string) {
+  return `https://wandering-disk-47a9.tsvini111.workers.dev/?routeKey=${encodeURIComponent(routeKey)}`;
 }

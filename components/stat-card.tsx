@@ -1,15 +1,15 @@
 type StatCardProps = {
-  label: string;
-  value: string | number;
-  helper: string;
+  title: string;
+  value: string;
+  footnote: string;
 };
 
-export function StatCard({ label, value, helper }: StatCardProps) {
+export function StatCard({ title, value, footnote }: StatCardProps) {
   return (
-    <div className="statCard">
-      <div className="statLabel">{label}</div>
-      <div className="statValue">{value}</div>
-      <div className="statHelper">{helper}</div>
-    </div>
+    <article className="statCard">
+      <span className="statLabel">{title}</span>
+      <strong className="statValue">{value}</strong>
+      <span className="statFootnote">{footnote}</span>
+    </article>
   );
 }
