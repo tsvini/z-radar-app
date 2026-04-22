@@ -22,12 +22,6 @@ export function HeroBanner({ apiUrl }: HeroBannerProps) {
             </p>
           </div>
         </div>
-
-        <div className="heroActions">
-          <a className="ghostButton" href={apiUrl} target="_blank" rel="noreferrer">
-            Abrir API
-          </a>
-        </div>
       </div>
     </section>
   );
