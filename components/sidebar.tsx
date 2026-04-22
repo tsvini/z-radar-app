@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 
-const items = [
-  { icon: "▦", label: "Dashboard", soon: false },
-  { icon: "◫", label: "Auditoria documental", soon: true },
-  { icon: "↺", label: "Histórico", soon: true },
-  { icon: "△", label: "Pendências", soon: true },
-  { icon: "◌", label: "Insights", soon: true },
-  { icon: "⚙", label: "Configurações", soon: true },
+const navItems = [
+  { icon: "▦", label: "Dashboard", href: "#", active: true, soon: false },
+  { icon: "◫", label: "Auditoria documental", href: "#", active: false, soon: true },
+  { icon: "↺", label: "Histórico", href: "#", active: false, soon: true },
+  { icon: "△", label: "Pendências", href: "#", active: false, soon: true },
+  { icon: "◌", label: "Insights", href: "#", active: false, soon: true },
+  { icon: "⚙", label: "Configurações", href: "#", active: false, soon: true },
 ];
 
 export function Sidebar() {
@@ -24,7 +24,7 @@ export function Sidebar() {
           aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
           title={collapsed ? "Expandir menu" : "Recolher menu"}
         >
-          {collapsed ? "→" : "←"}
+          <span className="sidebarToggleIcon">{collapsed ? "›" : "‹"}</span>
         </button>
 
         <div className="sidebarBrand">
@@ -32,40 +32,40 @@ export function Sidebar() {
             <img src="/zradar-logo.png" alt="Z-Radar" className="sidebarLogo" />
           </div>
 
-          {!collapsed ? (
+          {!collapsed && (
             <div className="sidebarBrandText">
               <strong>Z-Radar</strong>
               <span>Plataforma operacional</span>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
 
       <div className="sidebarSection">
-        {!collapsed ? <div className="sidebarTitle">Navegação</div> : null}
+        {!collapsed && <div className="sidebarTitle">Navegação</div>}
 
         <nav className="sidebarNav">
-          {items.map((item, index) => (
-            <button
+          {navItems.map((item) => (
+            <a
               key={item.label}
-              type="button"
-              className={`sidebarItem ${index === 0 ? "active" : ""}`}
+              href={item.href}
+              className={`sidebarItem ${item.active ? "active" : ""}`}
               title={collapsed ? item.label : undefined}
             >
               <span className="sidebarItemIcon">{item.icon}</span>
 
-              {!collapsed ? (
+              {!collapsed && (
                 <>
                   <span className="sidebarItemLabel">{item.label}</span>
-                  {item.soon ? <span className="soonBadge">Em breve</span> : null}
+                  {item.soon && <span className="soonBadge">Em breve</span>}
                 </>
-              ) : null}
-            </button>
+              )}
+            </a>
           ))}
         </nav>
       </div>
 
-      {!collapsed ? (
+      {!collapsed && (
         <>
           <div className="sidebarInfoCard">
             <span className="sidebarInfoKicker">Módulo ativo</span>
@@ -84,7 +84,7 @@ export function Sidebar() {
             </p>
           </div>
         </>
-      ) : null}
+      )}
     </aside>
   );
 }

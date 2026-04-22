@@ -1,49 +1,76 @@
-import { DashboardRoute, getHealthLabel, getHealthTone, hasAuditData } from "@/lib/dashboard";
-
-type Props = {
-  route: DashboardRoute;
+type RouteHealthCardProps = {
+  route: {
+    key: string;
+    label: string;
+    health_percent: number;
+    total_pages: number;
+    outdated_pages: number;
+    critical_pages: number;
+    status_title?: string;
+  };
 };
 
-export function RouteHealthCard({ route }: Props) {
-  const tone = getHealthTone(route.health_percent, route);
-  const label = getHealthLabel(route.health_percent, route);
-  const noData = !hasAuditData(route);
+function getTone(percent: number, totalPages: number) {
+  if (!totalPages) return "neutral";
+  if (percent < 40) return "danger";
+  if (percent < 75) return "warning";
+  return "success";
+}
+
+function getLabel(percent: number, totalPages: number) {
+  if (!totalPages) return "Sem auditoria";
+  if (percent < 40) return "Crítico";
+  if (percent < 75) return "Atenção";
+  return "Saudável";
+}
+
+export function RouteHealthCard({ route }: RouteHealthCardProps) {
+  const health = Number(route.health_percent || 0);
+  const totalPages = Number(route.total_pages || 0);
+  const outdatedPages = Number(route.outdated_pages || 0);
+  const criticalPages = Number(route.critical_pages || 0);
+
+  const tone = getTone(health, totalPages);
+  const label = getLabel(health, totalPages);
 
   return (
-    <div className="routeHealthCard">
+    <article className="routeHealthCard">
       <div className="routeHealthTop">
-        <h3 className="routeCardTitle">{route.label}</h3>
-        <span className={`statusBadge ${tone}`}>{label}</span>
+        <div>
+          <h3 className="routeTitle">{route.label}</h3>
+        </div>
+
+        <span className={`routeBadge ${tone}`}>{label}</span>
       </div>
 
-      <div className="progressTrack">
+      <div className="healthBar">
         <div
-          className={`progressFill ${tone}`}
-          style={{ width: `${noData ? 0 : Math.max(0, Math.min(100, route.health_percent || 0))}%` }}
+          className={`healthBarFill ${tone}`}
+          style={{ width: `${totalPages ? health : 0}%` }}
         />
       </div>
 
-      <div className="routeGrid">
-        <div className="routeMetric">
-          <strong>{noData ? "-" : `${route.health_percent}%`}</strong>
-          <span>Saúde</span>
+      <div className="routeMiniStats">
+        <div className="routeMiniStat">
+          <span className="routeMiniValue">{totalPages ? `${health}%` : "-"}</span>
+          <span className="routeMiniLabel">Saúde</span>
         </div>
 
-        <div className="routeMetric">
-          <strong>{route.total_pages || 0}</strong>
-          <span>Total</span>
+        <div className="routeMiniStat">
+          <span className="routeMiniValue">{totalPages}</span>
+          <span className="routeMiniLabel">Total</span>
         </div>
 
-        <div className="routeMetric warningMetric">
-          <strong>{route.outdated_pages || 0}</strong>
-          <span>Desatualizadas</span>
+        <div className="routeMiniStat">
+          <span className="routeMiniValue warning">{outdatedPages}</span>
+          <span className="routeMiniLabel">Desatualizadas</span>
         </div>
 
-        <div className="routeMetric dangerMetric">
-          <strong>{route.critical_pages || 0}</strong>
-          <span>Críticas</span>
+        <div className="routeMiniStat">
+          <span className="routeMiniValue danger">{criticalPages}</span>
+          <span className="routeMiniLabel">Críticas</span>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

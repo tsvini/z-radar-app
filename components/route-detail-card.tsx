@@ -1,105 +1,131 @@
-import {
-  DashboardRoute,
-  getHealthLabel,
-  getHealthTone,
-  getRerunUrl,
-  hasAuditData,
-} from "@/lib/dashboard";
-
-type Props = {
-  route: DashboardRoute;
+type RouteDetailCardProps = {
+  route: {
+    key: string;
+    label: string;
+    lastExecution?: string;
+    health_percent: number;
+    total_pages: number;
+    outdated_pages: number;
+    critical_pages: number;
+    status_title?: string;
+    status_text?: string;
+    ownersPendingMessage?: string;
+    doc_link?: string;
+    pdf_link?: string;
+    ai_generation_url?: string;
+    captured_at?: string;
+  };
 };
 
-export function RouteDetailCard({ route }: Props) {
-  const tone = getHealthTone(route.health_percent, route);
-  const label = getHealthLabel(route.health_percent, route);
-  const noData = !hasAuditData(route);
+function getTone(percent: number, totalPages: number) {
+  if (!totalPages) return "neutral";
+  if (percent < 40) return "danger";
+  if (percent < 75) return "warning";
+  return "success";
+}
+
+function getLabel(percent: number, totalPages: number) {
+  if (!totalPages) return "Sem auditoria";
+  if (percent < 40) return "Crítico";
+  if (percent < 75) return "Atenção";
+  return "Auditoria saudável";
+}
+
+export function RouteDetailCard({ route }: RouteDetailCardProps) {
+  const health = Number(route.health_percent || 0);
+  const totalPages = Number(route.total_pages || 0);
+  const outdatedPages = Number(route.outdated_pages || 0);
+  const criticalPages = Number(route.critical_pages || 0);
+
+  const tone = getTone(health, totalPages);
+  const label = getLabel(health, totalPages);
 
   return (
-    <div className="detailCard">
-      <div className="detailCardHeader">
+    <article className="routeDetailCard">
+      <div className="routeDetailTop">
         <div>
-          <h3 className="detailTitle">{route.label}</h3>
-          <p className="detailSubtitle">
-            Última execução: {route.lastExecution || "Sem registro"}
+          <h3 className="routeTitle">{route.label}</h3>
+          <p className="routeSub">
+            Última execução: {route.lastExecution || "Não disponível"}
           </p>
         </div>
 
-        <div className="detailScore">
-          <strong>{noData ? "-" : `${route.health_percent || 0}%`}</strong>
-          <span>Saúde</span>
+        <div className="routeScore">
+          <span className="routeScoreValue">{totalPages ? `${health}%` : "-"}</span>
+          <span className="routeScoreLabel">Saúde</span>
         </div>
       </div>
 
-      <div className="detailBody">
-        <div className="detailStatusRow">
-          <span className={`statusBadge ${tone}`}>{label}</span>
-          <span className="capturedAt">{route.captured_at || ""}</span>
+      <div className="routeDetailMeta">
+        <span className={`routeBadge ${tone}`}>{label}</span>
+
+        {route.captured_at ? (
+          <span className="routeCapturedAt">{route.captured_at}</span>
+        ) : null}
+      </div>
+
+      <p className="detailMessage">
+        {route.status_text?.trim()
+          ? route.status_text
+          : "Ainda não existe snapshot de auditoria para esta rota."}
+      </p>
+
+      <div className="routeDetailStats">
+        <div className="routeDetailStat">
+          <span className="routeDetailStatLabel">Total</span>
+          <strong className="routeDetailStatValue">{totalPages}</strong>
         </div>
 
-        <p className="detailText">
-          {noData
-            ? "Ainda não existe snapshot de auditoria para esta rota."
-            : route.status_text || "Sem descrição disponível."}
-        </p>
-
-        <div className="detailStats">
-          <div className="detailStat">
-            <span>Total</span>
-            <strong>{route.total_pages || 0}</strong>
-          </div>
-
-          <div className="detailStat warningStat">
-            <span>Desatualizadas</span>
-            <strong>{route.outdated_pages || 0}</strong>
-          </div>
-
-          <div className="detailStat dangerStat">
-            <span>Críticas</span>
-            <strong>{route.critical_pages || 0}</strong>
-          </div>
+        <div className="routeDetailStat">
+          <span className="routeDetailStatLabel">Desatualizadas</span>
+          <strong className="routeDetailStatValue warning">{outdatedPages}</strong>
         </div>
 
-        {!noData && route.ownersPendingMessage && (
-          <div className="pendingBox">
-            <div className="pendingTitle">Pendências por responsável</div>
-            <p>{route.ownersPendingMessage}</p>
-          </div>
-        )}
+        <div className="routeDetailStat">
+          <span className="routeDetailStatLabel">Críticas</span>
+          <strong className="routeDetailStatValue danger">{criticalPages}</strong>
+        </div>
+      </div>
 
-        <div className="detailActions">
-          {route.doc_link && (
-            <a
-              className="smallActionButton"
-              href={route.doc_link}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Abrir documento
-            </a>
-          )}
+      {route.ownersPendingMessage?.trim() ? (
+        <div className="detailOwners">
+          <div className="detailOwnersTitle">Pendências por responsável</div>
+          <div className="detailOwnersText">{route.ownersPendingMessage}</div>
+        </div>
+      ) : null}
 
+      <div className="detailActions">
+        {route.doc_link ? (
           <a
-            className="smallActionButton ghost"
-            href={getRerunUrl(route.key)}
+            className="primaryButton"
+            href={route.doc_link}
             target="_blank"
             rel="noreferrer"
           >
-            Reexecutar auditoria
+            Abrir documento
           </a>
+        ) : null}
 
-          {route.ai_generation_url && (
-            <a
-              className="smallActionButton ghost"
-              href={route.ai_generation_url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Gerar texto com IA
-            </a>
-          )}
-        </div>
+        <a
+          className="secondaryButton"
+          href={`https://wandering-disk-47a9.tsvini111.workers.dev/?routeKey=${route.key}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Reexecutar auditoria
+        </a>
+
+        {route.ai_generation_url ? (
+          <a
+            className="secondaryButton"
+            href={route.ai_generation_url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Gerar texto com IA
+          </a>
+        ) : null}
       </div>
-    </div>
+    </article>
   );
 }

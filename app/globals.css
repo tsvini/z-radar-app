@@ -11,7 +11,7 @@
   --green-2: #9cf8c4;
   --yellow: #ffd76b;
   --red: #ff8c8c;
-  --shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
   --radius-xl: 24px;
   --radius-lg: 20px;
   --radius-md: 16px;
@@ -72,11 +72,12 @@ button {
       transparent 1px,
       transparent 56px
     );
-  opacity: 0.22;
+  opacity: 0.2;
 }
 
 @keyframes auroraFlow {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%, 100% 30%, 10% 90%, 0 0;
   }
   50% {
@@ -88,7 +89,7 @@ button {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: 210px minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -96,35 +97,38 @@ button {
   position: sticky;
   top: 0;
   height: 100vh;
-  padding: 14px 12px;
+  padding: 12px 10px;
   border-right: 1px solid rgba(255, 255, 255, 0.04);
   background: rgba(4, 10, 18, 0.72);
   backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   overflow-y: auto;
 }
 
 .sidebar.collapsed {
-  width: 76px;
-  padding-inline: 10px;
+  width: 74px;
+  padding-inline: 8px;
 }
 
 .sidebarTop {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .sidebarToggle {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   border: 1px solid var(--border-soft);
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: 0.2s ease;
 }
 
@@ -133,11 +137,16 @@ button {
   border-color: var(--border);
 }
 
+.sidebarToggleIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
 .sidebarBrand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 58px;
+  gap: 10px;
+  min-height: 54px;
 }
 
 .sidebarLogoWrap {
@@ -149,16 +158,16 @@ button {
   justify-content: center;
   background: linear-gradient(135deg, rgba(38, 238, 127, 0.14), rgba(38, 238, 127, 0.04));
   border: 1px solid var(--border);
-  box-shadow: 0 0 26px rgba(38, 238, 127, 0.12);
+  box-shadow: 0 0 24px rgba(38, 238, 127, 0.1);
   overflow: hidden;
   flex: 0 0 auto;
 }
 
 .sidebarLogo {
-  width: 84%;
+  width: 82%;
   height: auto;
-  display: block;
   object-fit: contain;
+  display: block;
 }
 
 .sidebarBrandText {
@@ -168,7 +177,7 @@ button {
 }
 
 .sidebarBrandText strong {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.1;
 }
 
@@ -180,7 +189,7 @@ button {
 .sidebarSection {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .sidebarTitle {
@@ -189,7 +198,7 @@ button {
   text-transform: uppercase;
   color: #d8dfeb;
   letter-spacing: 0.06em;
-  padding: 0 6px;
+  padding: 0 4px;
 }
 
 .sidebarNav {
@@ -199,18 +208,14 @@ button {
 }
 
 .sidebarItem {
-  width: 100%;
-  min-height: 50px;
+  min-height: 48px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(255, 255, 255, 0.03);
-  color: var(--text);
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 0 14px;
-  cursor: pointer;
-  text-align: left;
   transition: 0.2s ease;
 }
 
@@ -226,26 +231,32 @@ button {
 
 .sidebarItemIcon {
   width: 18px;
-  text-align: center;
-  opacity: 0.9;
   flex: 0 0 18px;
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.95;
 }
 
 .sidebarItemLabel {
   flex: 1;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   line-height: 1.1;
 }
 
 .soonBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   color: #ffe08a;
-  border: 1px solid rgba(255, 224, 138, 0.18);
+  border: 1px solid rgba(255, 224, 138, 0.16);
   background: rgba(255, 224, 138, 0.08);
-  border-radius: 999px;
-  padding: 5px 8px;
   white-space: nowrap;
 }
 
@@ -259,10 +270,10 @@ button {
 }
 
 .sidebarInfoCard {
-  border-radius: 20px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(255, 255, 255, 0.03);
-  padding: 16px 14px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -270,15 +281,15 @@ button {
 
 .sidebarInfoKicker {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   color: var(--green);
   letter-spacing: 0.06em;
 }
 
 .sidebarInfoCard strong {
-  font-size: 16px;
-  line-height: 1.15;
+  font-size: 15px;
+  line-height: 1.2;
 }
 
 .sidebarInfoCard p {
@@ -289,14 +300,38 @@ button {
 }
 
 .appContent {
-  padding: 16px 20px 24px;
+  padding: 14px 18px 22px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.topbarButton {
+  min-width: 42px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #eef4ff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.topbarButton.logout {
+  color: #ffc6c6;
+  border-color: rgba(255, 140, 140, 0.14);
 }
 
 .dashboardWrap {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .heroCard,
@@ -309,7 +344,7 @@ button {
 }
 
 .heroCard {
-  padding: 24px;
+  padding: 24px 24px 22px;
 }
 
 .heroBadge {
@@ -318,7 +353,7 @@ button {
   border-radius: 999px;
   padding: 8px 14px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   color: var(--green);
   border: 1px solid rgba(38, 238, 127, 0.18);
@@ -344,21 +379,21 @@ button {
   width: 240px;
   max-width: 100%;
   height: auto;
-  display: block;
   object-fit: contain;
+  display: block;
 }
 
 .heroCopy {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   max-width: 760px;
 }
 
 .heroEyebrow {
   margin: 0;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   color: #c5d0df;
 }
 
@@ -377,29 +412,23 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 126px;
-  height: 48px;
+  min-width: 120px;
+  height: 44px;
   padding: 0 18px;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid rgba(38, 238, 127, 0.18);
   background: rgba(38, 238, 127, 0.07);
   color: #eefcff;
   font-weight: 800;
-  transition: 0.2s ease;
-}
-
-.ghostButton:hover {
-  background: rgba(38, 238, 127, 0.12);
 }
 
 .errorBanner {
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 140, 140, 0.18);
   background: rgba(255, 140, 140, 0.06);
   color: #ffb9b9;
-  padding: 14px 16px;
+  padding: 13px 15px;
   font-size: 14px;
-  line-height: 1.5;
 }
 
 .statsGrid {
@@ -409,8 +438,8 @@ button {
 }
 
 .statCard {
-  padding: 18px 18px 16px;
-  min-height: 118px;
+  padding: 16px 18px;
+  min-height: 112px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -419,27 +448,27 @@ button {
 
 .statLabel {
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   color: #cbd5e1;
   letter-spacing: 0.06em;
 }
 
 .statValue {
-  font-size: 40px;
+  font-size: 28px;
   line-height: 1;
   font-weight: 900;
   color: #f8fbff;
 }
 
 .statFootnote {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.4;
   color: var(--muted);
 }
 
 .sectionCard {
-  padding: 18px;
+  padding: 16px;
 }
 
 .sectionHeader {
@@ -452,8 +481,7 @@ button {
 
 .sectionTitle {
   margin: 0;
-  font-size: 20px;
-  line-height: 1.2;
+  font-size: 18px;
   font-weight: 900;
 }
 
@@ -481,7 +509,7 @@ button {
   border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(255, 255, 255, 0.025);
-  padding: 16px;
+  padding: 14px;
 }
 
 .routeHealthTop,
@@ -494,7 +522,7 @@ button {
 
 .routeTitle {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 900;
 }
 
@@ -514,7 +542,6 @@ button {
   font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
   white-space: nowrap;
 }
 
@@ -554,7 +581,22 @@ button {
 .healthBarFill {
   height: 100%;
   border-radius: 999px;
+}
+
+.healthBarFill.success {
   background: linear-gradient(90deg, #26ee7f, #98ffc8);
+}
+
+.healthBarFill.warning {
+  background: linear-gradient(90deg, #ffd76b, #ffe8a3);
+}
+
+.healthBarFill.danger {
+  background: linear-gradient(90deg, #ff8c8c, #ffc0c0);
+}
+
+.healthBarFill.neutral {
+  background: linear-gradient(90deg, #76849a, #a7b2c2);
 }
 
 .routeMiniStats {
@@ -565,19 +607,19 @@ button {
 }
 
 .routeMiniStat {
-  min-height: 70px;
-  border-radius: 16px;
+  min-height: 68px;
+  border-radius: 15px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 12px;
+  padding: 10px;
   text-align: center;
 }
 
 .routeMiniValue {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
   line-height: 1;
   color: #f7fbff;
@@ -600,10 +642,10 @@ button {
 }
 
 .routeScore {
-  width: 84px;
-  min-width: 84px;
-  height: 72px;
-  border-radius: 20px;
+  width: 78px;
+  min-width: 78px;
+  height: 70px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
@@ -614,7 +656,7 @@ button {
 }
 
 .routeScoreValue {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 900;
   line-height: 1;
 }
@@ -623,6 +665,57 @@ button {
   font-size: 11px;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+.routeDetailMeta {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.routeCapturedAt {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.routeDetailStats {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.routeDetailStat {
+  min-height: 68px;
+  border-radius: 15px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.routeDetailStatLabel {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.routeDetailStatValue {
+  font-size: 15px;
+  font-weight: 900;
+  color: #f8fbff;
+}
+
+.routeDetailStatValue.warning {
+  color: var(--yellow);
+}
+
+.routeDetailStatValue.danger {
+  color: var(--red);
 }
 
 .detailMessage {
@@ -642,8 +735,15 @@ button {
 
 .detailOwnersTitle {
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 900;
   margin-bottom: 8px;
+}
+
+.detailOwnersText {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #dce4ef;
+  white-space: pre-line;
 }
 
 .detailActions {
@@ -699,7 +799,7 @@ button {
 
 .upcomingTitle {
   margin: 12px 0 8px;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 900;
 }
 
@@ -710,31 +810,8 @@ button {
   line-height: 1.6;
 }
 
-.topbar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.topbarButton {
-  min-width: 56px;
-  height: 38px;
-  padding: 0 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  color: #eef4ff;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.topbarButton.logout {
-  color: #ffcccc;
-  border-color: rgba(255, 140, 140, 0.14);
-}
-
 .footerNote {
-  margin-top: 6px;
+  margin-top: 4px;
   text-align: center;
   font-size: 13px;
   color: var(--muted);
@@ -773,7 +850,8 @@ button {
     padding: 14px;
   }
 
-  .routeMiniStats {
+  .routeMiniStats,
+  .routeDetailStats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
