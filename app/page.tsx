@@ -1,188 +1,344 @@
-type DashboardRoute = {
+type RouteItem = {
   key: string;
   label: string;
-  lastExecution?: string;
-  error?: string;
-  healthPercent?: number;
-  outdatedPages?: number;
-  criticalPages?: number;
+  description: string;
+  lastExecution: string;
+  status: string;
+  auditHref: string;
+  historyHref: string;
 };
 
-type DashboardModule = {
-  key: string;
-  name: string;
-};
-
-type DashboardResponse = {
-  ok: boolean;
-  productName?: string;
-  activeModules?: DashboardModule[];
-  upcomingModules?: DashboardModule[];
-  routes?: DashboardRoute[];
-};
-
-async function getDashboardData(): Promise<DashboardResponse> {
-  const baseUrl = process.env.WORKER_BASE_URL;
-  const token = process.env.WORKER_DASHBOARD_TOKEN;
-
-  if (!baseUrl) {
-    throw new Error("WORKER_BASE_URL não configurada.");
+const monitoredRoutes: RouteItem[] = [
+  {
+    key: "edutech",
+    label: "EduTech",
+    description:
+      "Acompanhamento da auditoria documental, histórico operacional e evolução da frente EduTech.",
+    lastExecution: "21/04/2026 às 23:49",
+    status: "Operacional",
+    auditHref: "/?routeKey=edutech",
+    historyHref: "/historico/edutech"
+  },
+  {
+    key: "assistente-virtual",
+    label: "Assistente Virtual",
+    description:
+      "Monitoramento da documentação, execuções anteriores e contexto operacional da frente Assistente Virtual.",
+    lastExecution: "19/04/2026 às 23:27",
+    status: "Operacional",
+    auditHref: "/?routeKey=assistente-virtual",
+    historyHref: "/historico/assistente-virtual"
   }
+];
 
-  if (!token) {
-    throw new Error("WORKER_DASHBOARD_TOKEN não configurado.");
-  }
-
-  const response = await fetch(`${baseUrl}/api/dashboard`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`Falha ao carregar dashboard (${response.status}).`);
-  }
-
-  const data = (await response.json()) as DashboardResponse;
-
-  if (!data?.ok) {
-    throw new Error("Worker retornou erro ao montar dashboard.");
-  }
-
-  return data;
+function TopActionButton({
+  href,
+  children,
+  primary = false
+}: {
+  href: string;
+  children: React.ReactNode;
+  primary?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "54px",
+        padding: primary ? "0 28px" : "0 18px",
+        borderRadius: "18px",
+        textDecoration: "none",
+        fontWeight: 800,
+        fontSize: "16px",
+        letterSpacing: "-0.02em",
+        color: primary ? "#04110a" : "#f8fafc",
+        background: primary
+          ? "linear-gradient(135deg, #19f67d 0%, #0fdc67 100%)"
+          : "rgba(255,255,255,0.06)",
+        border: primary
+          ? "1px solid rgba(25,246,125,0.35)"
+          : "1px solid rgba(255,255,255,0.08)",
+        boxShadow: primary
+          ? "0 18px 42px rgba(25,246,125,0.22)"
+          : "inset 0 1px 0 rgba(255,255,255,0.06)"
+      }}
+    >
+      {children}
+    </a>
+  );
 }
 
-function getRouteDescription(route: DashboardRoute) {
-  const key = String(route.key || "").toLowerCase();
-
-  if (key === "edutech") {
-    return "Visão operacional da documentação, auditorias e evolução da frente EduTech.";
-  }
-
-  if (key === "assistente-virtual") {
-    return "Visão operacional da documentação, auditorias e evolução da frente Assistente Virtual.";
-  }
-
-  return "Visão operacional da rota monitorada.";
-}
-
-function getRouteStatus(route: DashboardRoute) {
-  if (route.error) {
-    return {
-      label: "Atenção",
-      textColor: "#fecaca",
-      bg: "rgba(239,68,68,0.12)",
-      border: "1px solid rgba(239,68,68,0.22)",
-      glow: "0 0 22px rgba(239,68,68,0.10)",
-    };
-  }
-
-  if (route.lastExecution) {
-    return {
-      label: "Operacional",
-      textColor: "#8ef7b5",
-      bg: "rgba(18,242,118,0.10)",
-      border: "1px solid rgba(18,242,118,0.18)",
-      glow: "0 0 22px rgba(18,242,118,0.10)",
-    };
-  }
-
-  return {
-    label: "Sem histórico",
-    textColor: "#d8e3f1",
-    bg: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    glow: "none",
-  };
-}
-
-function formatMetricValue(value?: number) {
-  return typeof value === "number" ? String(value) : "—";
-}
-
-function renderMetricCard(
-  title: string,
-  value: string,
-  accent: "good" | "warning" | "danger" | "neutral" = "neutral"
-) {
-  const accentMap = {
-    good: {
-      color: "#86efac",
-      border: "rgba(18,242,118,0.16)",
-      bg: "rgba(18,242,118,0.05)",
-    },
-    warning: {
-      color: "#fde68a",
-      border: "rgba(245,158,11,0.16)",
-      bg: "rgba(245,158,11,0.05)",
-    },
-    danger: {
-      color: "#fecaca",
-      border: "rgba(239,68,68,0.16)",
-      bg: "rgba(239,68,68,0.05)",
-    },
-    neutral: {
-      color: "#f8fafc",
-      border: "rgba(255,255,255,0.08)",
-      bg: "rgba(255,255,255,0.03)",
-    },
-  }[accent];
-
+function RouteCard({ route }: { route: RouteItem }) {
   return (
     <div
       style={{
-        padding: "14px 16px",
-        borderRadius: "18px",
-        background: accentMap.bg,
-        border: `1px solid ${accentMap.border}`,
-        minHeight: "96px",
+        borderRadius: "28px",
+        padding: "28px",
+        background:
+          "linear-gradient(180deg, rgba(10,18,37,0.92), rgba(7,14,28,0.92))",
+        border: "1px solid rgba(18,242,118,0.10)",
+        boxShadow:
+          "0 24px 60px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)"
       }}
     >
       <div
         style={{
-          color: "#8ea4c1",
-          fontSize: "12px",
-          marginBottom: "10px",
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "18px",
+          flexWrap: "wrap"
         }}
       >
-        {title}
-      </div>
-      <div
-        style={{
-          fontSize: "28px",
-          fontWeight: 800,
-          color: accentMap.color,
-          letterSpacing: "-0.04em",
-        }}
-      >
-        {value}
+        <div style={{ maxWidth: "760px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "14px",
+              flexWrap: "wrap",
+              marginBottom: "14px"
+            }}
+          >
+            <h3
+              style={{
+                margin: 0,
+                fontSize: "42px",
+                lineHeight: 1,
+                letterSpacing: "-0.05em",
+                fontWeight: 800,
+                color: "#f8fafc"
+              }}
+            >
+              {route.label}
+            </h3>
+
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                height: "34px",
+                padding: "0 14px",
+                borderRadius: "999px",
+                fontSize: "12px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "#8df7b9",
+                background: "rgba(18,242,118,0.10)",
+                border: "1px solid rgba(18,242,118,0.18)"
+              }}
+            >
+              {route.status}
+            </span>
+          </div>
+
+          <p
+            style={{
+              margin: "0 0 18px",
+              maxWidth: "850px",
+              color: "#9fb0c9",
+              fontSize: "18px",
+              lineHeight: 1.7
+            }}
+          >
+            {route.description}
+          </p>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "14px",
+              marginBottom: "22px"
+            }}
+          >
+            <div
+              style={{
+                borderRadius: "18px",
+                padding: "16px 18px",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.05)"
+              }}
+            >
+              <div
+                style={{
+                  color: "#7f91aa",
+                  fontSize: "12px",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                  letterSpacing: "0.06em",
+                  marginBottom: "6px"
+                }}
+              >
+                Última execução
+              </div>
+              <div
+                style={{
+                  color: "#f8fafc",
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  lineHeight: 1.4
+                }}
+              >
+                {route.lastExecution}
+              </div>
+            </div>
+
+            <div
+              style={{
+                borderRadius: "18px",
+                padding: "16px 18px",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.05)"
+              }}
+            >
+              <div
+                style={{
+                  color: "#7f91aa",
+                  fontSize: "12px",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                  letterSpacing: "0.06em",
+                  marginBottom: "6px"
+                }}
+              >
+                Chave da rota
+              </div>
+              <div
+                style={{
+                  color: "#d9e5f4",
+                  fontSize: "17px",
+                  fontWeight: 600
+                }}
+              >
+                {route.key}
+              </div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              flexWrap: "wrap"
+            }}
+          >
+            <a
+              href={route.auditHref}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "54px",
+                padding: "0 22px",
+                borderRadius: "18px",
+                textDecoration: "none",
+                fontWeight: 800,
+                fontSize: "16px",
+                color: "#04110a",
+                background:
+                  "linear-gradient(135deg, #19f67d 0%, #11de68 100%)",
+                border: "1px solid rgba(25,246,125,0.35)",
+                boxShadow: "0 16px 34px rgba(25,246,125,0.20)"
+              }}
+            >
+              Abrir auditoria
+            </a>
+
+            <a
+              href={route.historyHref}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "54px",
+                padding: "0 22px",
+                borderRadius: "18px",
+                textDecoration: "none",
+                fontWeight: 800,
+                fontSize: "16px",
+                color: "#f8fafc",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.08)"
+              }}
+            >
+              Ver histórico
+            </a>
+
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "54px",
+                padding: "0 22px",
+                borderRadius: "18px",
+                fontWeight: 800,
+                fontSize: "16px",
+                color: "#8ea1bc",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.06)"
+              }}
+            >
+              Relatório IA · em breve
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-export default async function Home() {
-  const data = await getDashboardData();
+function GhostPanel({
+  title,
+  children
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      style={{
+        borderRadius: "30px",
+        padding: "30px",
+        background:
+          "linear-gradient(180deg, rgba(7,15,30,0.90), rgba(5,10,22,0.92))",
+        border: "1px solid rgba(255,255,255,0.06)",
+        boxShadow:
+          "0 28px 70px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.04)"
+      }}
+    >
+      <h2
+        style={{
+          margin: "0 0 22px",
+          fontSize: "44px",
+          lineHeight: 1,
+          letterSpacing: "-0.05em",
+          fontWeight: 800,
+          color: "#f8fafc"
+        }}
+      >
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
 
-  const workerBaseUrl = process.env.WORKER_BASE_URL || "";
-  const productName = data.productName || "Z-Radar";
-  const routes = Array.isArray(data.routes) ? data.routes : [];
-  const upcomingModules = Array.isArray(data.upcomingModules) ? data.upcomingModules : [];
-
-  const globalAuditUrl = `${workerBaseUrl}?routeKey=all`;
-
+export default function Home() {
   return (
     <main
       style={{
         minHeight: "100vh",
         color: "#f8fafc",
-        fontFamily: "Inter, Arial, sans-serif",
-        position: "relative",
-        overflow: "hidden",
         background:
-          "radial-gradient(circle at 15% 18%, rgba(18,242,118,0.14), transparent 18%), radial-gradient(circle at 78% 12%, rgba(25,119,255,0.12), transparent 20%), radial-gradient(circle at 52% 110%, rgba(18,242,118,0.08), transparent 30%), linear-gradient(180deg, #03101d 0%, #04111f 32%, #020916 100%)",
+          "linear-gradient(180deg, #040915 0%, #07111f 48%, #030814 100%)",
+        position: "relative",
+        overflow: "hidden"
       }}
     >
       <div
@@ -190,99 +346,90 @@ export default async function Home() {
           position: "fixed",
           inset: 0,
           pointerEvents: "none",
-          opacity: 0.9,
-          background:
-            "radial-gradient(ellipse at 10% 25%, rgba(18,242,118,0.18), transparent 22%), radial-gradient(ellipse at 88% 16%, rgba(0,153,255,0.12), transparent 18%), radial-gradient(ellipse at 45% 80%, rgba(18,242,118,0.08), transparent 24%)",
-          filter: "blur(20px)",
-          animation: "auroraFloat 14s ease-in-out infinite",
+          background: `
+            radial-gradient(circle at 12% 18%, rgba(18,242,118,0.22), transparent 24%),
+            radial-gradient(circle at 78% 16%, rgba(22,163,255,0.14), transparent 22%),
+            radial-gradient(circle at 52% 72%, rgba(18,242,118,0.12), transparent 28%),
+            radial-gradient(circle at 22% 88%, rgba(18,242,118,0.10), transparent 24%)
+          `,
+          filter: "blur(12px)"
         }}
       />
 
       <div
         style={{
           position: "fixed",
-          inset: 0,
+          inset: "-10%",
           pointerEvents: "none",
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px)",
-          backgroundSize: "42px 42px",
-          maskImage: "radial-gradient(circle at center, black 45%, transparent 95%)",
-          opacity: 0.35,
+          background:
+            "linear-gradient(135deg, rgba(18,242,118,0.10), transparent 24%, transparent 62%, rgba(18,242,118,0.08))",
+          animation: "auroraShift 16s ease-in-out infinite"
         }}
       />
 
-      <style>{`
-        @keyframes auroraFloat {
-          0%, 100% {
-            transform: translate3d(0, 0, 0) scale(1);
-          }
-          50% {
-            transform: translate3d(0, -18px, 0) scale(1.03);
-          }
-        }
-      `}</style>
-
       <div
         style={{
-          position: "relative",
-          zIndex: 1,
-          maxWidth: "1420px",
+          maxWidth: "1380px",
           margin: "0 auto",
-          padding: "26px 24px 44px",
+          padding: "28px 28px 60px",
+          position: "relative",
+          zIndex: 1
         }}
       >
         <header
           style={{
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
-            gap: "18px",
-            padding: "20px 24px",
-            borderRadius: "28px",
-            marginBottom: "22px",
-            border: "1px solid rgba(255,255,255,0.07)",
-            background: "rgba(5,12,24,0.70)",
-            backdropFilter: "blur(16px)",
-            boxShadow: "0 24px 60px rgba(0,0,0,0.26)",
+            justifyContent: "space-between",
+            gap: "24px",
+            padding: "26px 28px",
+            borderRadius: "30px",
+            background:
+              "linear-gradient(180deg, rgba(7,15,30,0.88), rgba(5,10,22,0.92))",
+            border: "1px solid rgba(255,255,255,0.06)",
+            boxShadow:
+              "0 24px 70px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)",
+            marginBottom: "24px",
+            flexWrap: "wrap"
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
             <div
               style={{
-                width: "72px",
-                height: "72px",
+                width: "74px",
+                height: "74px",
                 borderRadius: "22px",
+                background:
+                  "linear-gradient(135deg, rgba(18,242,118,0.18), rgba(18,242,118,0.04))",
+                border: "1px solid rgba(18,242,118,0.18)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background:
-                  "linear-gradient(135deg, rgba(18,242,118,0.10), rgba(18,242,118,0.03))",
-                border: "1px solid rgba(18,242,118,0.16)",
-                boxShadow: "0 0 36px rgba(18,242,118,0.12)",
-                overflow: "hidden",
+                boxShadow: "0 0 34px rgba(18,242,118,0.12)"
               }}
             >
-              <img
-                src="https://raw.githubusercontent.com/tsvini/logo-zallpy-orbit/main/ChatGPT%20Image%2021%20de%20abr.%20de%202026%2C%2023_37_15.png"
-                alt="Z-RADAR"
+              <span
                 style={{
-                  width: "78%",
-                  height: "78%",
-                  objectFit: "contain",
-                  filter: "drop-shadow(0 0 12px rgba(18,242,118,0.14))",
+                  fontSize: "38px",
+                  lineHeight: 1,
+                  fontWeight: 900,
+                  color: "#19f67d",
+                  textShadow: "0 0 20px rgba(25,246,125,0.22)"
                 }}
-              />
+              >
+                Z
+              </span>
             </div>
 
             <div>
               <div
                 style={{
-                  fontSize: "13px",
+                  color: "#8ec5ff",
+                  fontSize: "14px",
                   fontWeight: 800,
-                  letterSpacing: "0.14em",
+                  letterSpacing: "0.10em",
                   textTransform: "uppercase",
-                  color: "#8dd7ff",
-                  marginBottom: "6px",
+                  marginBottom: "6px"
                 }}
               >
                 Z-Radar Platform
@@ -290,96 +437,74 @@ export default async function Home() {
 
               <div
                 style={{
-                  fontSize: "36px",
+                  fontSize: "56px",
+                  lineHeight: 0.95,
+                  letterSpacing: "-0.06em",
                   fontWeight: 800,
-                  lineHeight: 1,
-                  letterSpacing: "-0.05em",
-                  marginBottom: "8px",
+                  marginBottom: "8px"
                 }}
               >
-                {productName}
+                Z-Radar
               </div>
 
               <div
                 style={{
-                  color: "#97a9c4",
-                  fontSize: "14px",
-                  lineHeight: 1.6,
-                  maxWidth: "620px",
+                  color: "#8fa2bc",
+                  fontSize: "20px",
+                  lineHeight: 1.5,
+                  maxWidth: "760px"
                 }}
               >
-                Auditoria documental, histórico operacional e estrutura preparada
+                Auditoria documental, histórico operacional e estrutura pronta
                 para inteligência contextual.
               </div>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <a
-              href={globalAuditUrl}
-              style={{
-                textDecoration: "none",
-                padding: "14px 20px",
-                borderRadius: "18px",
-                background: "linear-gradient(135deg, #12f276 0%, #0dd65e 100%)",
-                color: "#04110a",
-                fontWeight: 800,
-                fontSize: "15px",
-                boxShadow: "0 16px 34px rgba(18,242,118,0.22)",
-                whiteSpace: "nowrap",
-              }}
-            >
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <TopActionButton href="/?routeKey=all" primary>
               Abrir auditoria documental
-            </a>
-
-            <button
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "16px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.04)",
-                color: "#e8f0fb",
-                fontSize: "18px",
-                cursor: "pointer",
-              }}
-              title="Configurações"
-            >
-              ⚙
-            </button>
+            </TopActionButton>
+            <TopActionButton href="/configuracoes">
+              Configurações
+            </TopActionButton>
           </div>
         </header>
 
         <section
           style={{
             display: "grid",
-            gridTemplateColumns: "1.35fr 0.95fr",
-            gap: "20px",
-            marginBottom: "20px",
+            gridTemplateColumns: "1.45fr 1fr",
+            gap: "24px",
+            marginBottom: "24px"
           }}
         >
-          <div
+          <section
             style={{
               borderRadius: "34px",
-              padding: "32px",
-              border: "1px solid rgba(18,242,118,0.14)",
+              padding: "34px",
               background:
-                "radial-gradient(circle at top left, rgba(18,242,118,0.10), transparent 24%), linear-gradient(135deg, rgba(5,18,34,0.94), rgba(5,18,25,0.94))",
-              boxShadow: "0 26px 80px rgba(0,0,0,0.30)",
+                "linear-gradient(135deg, rgba(4,17,34,0.88), rgba(4,20,18,0.84))",
+              border: "1px solid rgba(18,242,118,0.14)",
+              boxShadow:
+                "0 36px 90px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)"
             }}
           >
             <div
               style={{
                 display: "inline-flex",
-                padding: "8px 14px",
+                alignItems: "center",
+                height: "38px",
+                padding: "0 16px",
                 borderRadius: "999px",
-                background: "rgba(18,242,118,0.08)",
-                border: "1px solid rgba(18,242,118,0.15)",
-                color: "#8ef7b5",
-                fontSize: "12px",
+                background: "rgba(18,242,118,0.10)",
+                border: "1px solid rgba(18,242,118,0.18)",
+                color: "#8df7b9",
+                fontSize: "13px",
                 fontWeight: 800,
                 textTransform: "uppercase",
-                marginBottom: "20px",
+                letterSpacing: "0.06em",
+                marginBottom: "24px"
               }}
             >
               Painel central
@@ -387,11 +512,12 @@ export default async function Home() {
 
             <h1
               style={{
-                margin: 0,
-                fontSize: "58px",
-                lineHeight: 0.98,
-                letterSpacing: "-0.06em",
-                maxWidth: "900px",
+                margin: "0 0 20px",
+                fontSize: "72px",
+                lineHeight: 0.96,
+                letterSpacing: "-0.07em",
+                fontWeight: 800,
+                maxWidth: "840px"
               }}
             >
               A operação do Z-RADAR começa pelas rotas monitoradas
@@ -399,12 +525,11 @@ export default async function Home() {
 
             <p
               style={{
-                marginTop: "18px",
-                marginBottom: "26px",
-                color: "#9db1cb",
-                fontSize: "18px",
-                lineHeight: 1.75,
-                maxWidth: "860px",
+                margin: "0 0 28px",
+                color: "#a0b2c9",
+                fontSize: "20px",
+                lineHeight: 1.8,
+                maxWidth: "900px"
               }}
             >
               Visualize as frentes ativas, abra a auditoria documental, consulte
@@ -416,35 +541,78 @@ export default async function Home() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gap: "14px",
+                gap: "16px"
               }}
             >
-              {renderMetricCard("Rotas monitoradas", String(routes.length), "neutral")}
-              {renderMetricCard("Módulos futuros", String(upcomingModules.length), "neutral")}
-              {renderMetricCard("Camada IA", "Em breve", "good")}
-            </div>
-          </div>
+              <div
+                style={{
+                  borderRadius: "22px",
+                  padding: "20px",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.05)"
+                }}
+              >
+                <div style={{ color: "#8ea2bd", fontSize: "15px", marginBottom: "10px" }}>
+                  Rotas monitoradas
+                </div>
+                <div style={{ fontSize: "54px", fontWeight: 800, lineHeight: 1 }}>
+                  2
+                </div>
+              </div>
 
-          <div
+              <div
+                style={{
+                  borderRadius: "22px",
+                  padding: "20px",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.05)"
+                }}
+              >
+                <div style={{ color: "#8ea2bd", fontSize: "15px", marginBottom: "10px" }}>
+                  Histórico
+                </div>
+                <div style={{ fontSize: "54px", fontWeight: 800, lineHeight: 1 }}>
+                  2
+                </div>
+              </div>
+
+              <div
+                style={{
+                  borderRadius: "22px",
+                  padding: "20px",
+                  background: "rgba(18,242,118,0.07)",
+                  border: "1px solid rgba(18,242,118,0.14)"
+                }}
+              >
+                <div style={{ color: "#98eeb9", fontSize: "15px", marginBottom: "10px" }}>
+                  IA operacional
+                </div>
+                <div style={{ fontSize: "42px", fontWeight: 800, lineHeight: 1.1 }}>
+                  Em breve
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
             style={{
               borderRadius: "34px",
-              padding: "28px",
-              border: "1px solid rgba(255,255,255,0.07)",
-              background: "rgba(5,12,24,0.74)",
-              boxShadow: "0 26px 80px rgba(0,0,0,0.28)",
-              display: "flex",
-              flexDirection: "column",
-              minHeight: "100%",
+              padding: "30px",
+              background:
+                "linear-gradient(180deg, rgba(6,15,31,0.90), rgba(4,10,24,0.94))",
+              border: "1px solid rgba(255,255,255,0.06)",
+              boxShadow:
+                "0 32px 80px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.04)"
             }}
           >
             <div
               style={{
-                color: "#8dd7ff",
-                fontSize: "13px",
+                color: "#7fc6ff",
+                fontSize: "15px",
                 fontWeight: 800,
-                letterSpacing: "0.14em",
+                letterSpacing: "0.10em",
                 textTransform: "uppercase",
-                marginBottom: "16px",
+                marginBottom: "20px"
               }}
             >
               Workspace IA
@@ -452,433 +620,254 @@ export default async function Home() {
 
             <div
               style={{
-                borderRadius: "26px",
-                padding: "22px",
-                minHeight: "240px",
-                background:
-                  "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))",
+                borderRadius: "28px",
+                padding: "28px",
+                background: "rgba(255,255,255,0.04)",
                 border: "1px solid rgba(255,255,255,0.06)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                marginBottom: "14px",
+                marginBottom: "18px"
               }}
             >
-              <div>
-                <div
-                  style={{
-                    fontSize: "28px",
-                    fontWeight: 800,
-                    letterSpacing: "-0.04em",
-                    marginBottom: "12px",
-                  }}
-                >
-                  Chat operacional com IA
-                </div>
-
-                <div
-                  style={{
-                    color: "#9ab0ca",
-                    fontSize: "15px",
-                    lineHeight: 1.8,
-                    maxWidth: "520px",
-                  }}
-                >
-                  Espaço reservado para conversas contextuais sobre rotas,
-                  documentação, auditorias, relatórios e acompanhamento da operação.
-                </div>
+              <div
+                style={{
+                  fontSize: "30px",
+                  lineHeight: 1.1,
+                  fontWeight: 800,
+                  marginBottom: "14px"
+                }}
+              >
+                Chat operacional com IA
+              </div>
+              <div
+                style={{
+                  color: "#9cb0ca",
+                  fontSize: "18px",
+                  lineHeight: 1.8,
+                  marginBottom: "18px"
+                }}
+              >
+                Espaço reservado para conversas contextuais sobre rotas,
+                documentação, auditorias, relatórios e acompanhamento da operação.
               </div>
 
               <div
                 style={{
-                  marginTop: "24px",
-                  borderRadius: "18px",
-                  padding: "16px",
-                  background: "rgba(18,242,118,0.05)",
-                  border: "1px solid rgba(18,242,118,0.10)",
-                  color: "#dfffea",
+                  borderRadius: "22px",
+                  padding: "20px 22px",
+                  background: "rgba(18,242,118,0.06)",
+                  border: "1px solid rgba(18,242,118,0.12)",
+                  color: "#d6f7e5",
+                  fontSize: "18px",
+                  lineHeight: 1.7
                 }}
               >
-                Aqui depois entra o chat, os prompts rápidos e o resumo inteligente
-                da operação.
+                Aqui depois entra o chat, os prompts rápidos e o resumo
+                inteligente da operação.
               </div>
             </div>
 
-            <div style={{ display: "grid", gap: "12px" }}>
+            <div
+              style={{
+                borderRadius: "22px",
+                padding: "22px",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.05)"
+              }}
+            >
               <div
                 style={{
-                  borderRadius: "20px",
-                  padding: "16px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  fontSize: "18px",
+                  fontWeight: 800,
+                  marginBottom: "8px"
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: "16px", marginBottom: "6px" }}>
-                  Relatórios inteligentes
-                </div>
-                <div style={{ color: "#8ea4c1", fontSize: "14px", lineHeight: 1.7 }}>
-                  Consolidação futura de execução, falhas, pendências e leitura assistida.
-                </div>
+                Relatórios inteligentes
+              </div>
+              <div
+                style={{
+                  color: "#92a4bc",
+                  fontSize: "16px",
+                  lineHeight: 1.7,
+                  marginBottom: "14px"
+                }}
+              >
+                Consolidação futura de execução, falhas, pendências e leitura
+                assistida.
               </div>
 
               <div
                 style={{
                   display: "inline-flex",
-                  alignSelf: "flex-start",
-                  padding: "8px 12px",
+                  alignItems: "center",
+                  height: "36px",
+                  padding: "0 14px",
                   borderRadius: "999px",
                   background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "#e6eefb",
-                  fontSize: "12px",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  color: "#d7deea",
+                  fontSize: "13px",
                   fontWeight: 800,
-                  textTransform: "uppercase",
+                  textTransform: "uppercase"
                 }}
               >
                 Em breve
               </div>
             </div>
-          </div>
+          </section>
         </section>
 
         <section
           style={{
             display: "grid",
-            gridTemplateColumns: "1.42fr 0.82fr",
-            gap: "20px",
-            alignItems: "start",
+            gridTemplateColumns: "1.55fr 1fr",
+            gap: "24px"
           }}
         >
-          <div
-            style={{
-              borderRadius: "34px",
-              padding: "24px",
-              border: "1px solid rgba(255,255,255,0.07)",
-              background: "rgba(5,12,24,0.76)",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
-            }}
-          >
+          <GhostPanel title="Rotas monitoradas">
             <div
               style={{
-                fontSize: "42px",
-                fontWeight: 800,
-                letterSpacing: "-0.05em",
-                marginBottom: "18px",
+                display: "grid",
+                gap: "18px"
               }}
             >
-              Rotas monitoradas
-            </div>
-
-            <div style={{ display: "grid", gap: "16px" }}>
-              {routes.map((route) => {
-                const routeAuditUrl = `${workerBaseUrl}?routeKey=${encodeURIComponent(route.key)}`;
-                const historyUrl = `/historico/${encodeURIComponent(route.key)}`;
-                const status = getRouteStatus(route);
-
-                const hasOptionalStats =
-                  typeof route.healthPercent === "number" ||
-                  typeof route.outdatedPages === "number" ||
-                  typeof route.criticalPages === "number";
-
-                return (
-                  <div
-                    key={route.key}
-                    style={{
-                      borderRadius: "28px",
-                      padding: "24px",
-                      background:
-                        "linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02))",
-                      border: "1px solid rgba(255,255,255,0.07)",
-                      boxShadow: status.glow,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        gap: "18px",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <div style={{ flex: "1 1 640px" }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "12px",
-                            flexWrap: "wrap",
-                            marginBottom: "10px",
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: "24px",
-                              fontWeight: 800,
-                              letterSpacing: "-0.04em",
-                            }}
-                          >
-                            {route.label}
-                          </div>
-
-                          <span
-                            style={{
-                              padding: "8px 12px",
-                              borderRadius: "999px",
-                              fontSize: "11px",
-                              fontWeight: 800,
-                              textTransform: "uppercase",
-                              color: status.textColor,
-                              background: status.bg,
-                              border: status.border,
-                            }}
-                          >
-                            {status.label}
-                          </span>
-                        </div>
-
-                        <div
-                          style={{
-                            color: "#97a9c4",
-                            fontSize: "15px",
-                            lineHeight: 1.75,
-                            marginBottom: "14px",
-                            maxWidth: "760px",
-                          }}
-                        >
-                          {getRouteDescription(route)}
-                        </div>
-
-                        <div
-                          style={{
-                            color: "#eef5ff",
-                            fontSize: "15px",
-                            marginBottom: "6px",
-                          }}
-                        >
-                          {route.lastExecution
-                            ? `Última execução: ${route.lastExecution}`
-                            : route.error
-                            ? route.error
-                            : "Sem execução registrada ainda."}
-                        </div>
-
-                        <div
-                          style={{
-                            color: "#7890ae",
-                            fontSize: "13px",
-                            marginBottom: hasOptionalStats ? "16px" : "0",
-                          }}
-                        >
-                          Chave da rota: {route.key}
-                        </div>
-
-                        {hasOptionalStats && (
-                          <div
-                            style={{
-                              display: "grid",
-                              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                              gap: "12px",
-                              marginBottom: "18px",
-                              marginTop: "16px",
-                            }}
-                          >
-                            {renderMetricCard(
-                              "Saúde",
-                              typeof route.healthPercent === "number"
-                                ? `${route.healthPercent}%`
-                                : "—",
-                              "good"
-                            )}
-                            {renderMetricCard(
-                              "Desatualizadas",
-                              formatMetricValue(route.outdatedPages),
-                              "warning"
-                            )}
-                            {renderMetricCard(
-                              "Críticas",
-                              formatMetricValue(route.criticalPages),
-                              "danger"
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "10px",
-                          flexWrap: "wrap",
-                          alignSelf: "flex-end",
-                        }}
-                      >
-                        <a
-                          href={routeAuditUrl}
-                          style={{
-                            textDecoration: "none",
-                            padding: "13px 18px",
-                            borderRadius: "16px",
-                            background: "rgba(18,242,118,0.08)",
-                            border: "1px solid rgba(18,242,118,0.16)",
-                            color: "#dfffea",
-                            fontWeight: 700,
-                          }}
-                        >
-                          Abrir auditoria
-                        </a>
-
-                        <a
-                          href={historyUrl}
-                          style={{
-                            textDecoration: "none",
-                            padding: "13px 18px",
-                            borderRadius: "16px",
-                            background: "rgba(255,255,255,0.04)",
-                            border: "1px solid rgba(255,255,255,0.08)",
-                            color: "#eef4ff",
-                            fontWeight: 700,
-                          }}
-                        >
-                          Ver histórico
-                        </a>
-
-                        <button
-                          disabled
-                          style={{
-                            padding: "13px 18px",
-                            borderRadius: "16px",
-                            background: "rgba(255,255,255,0.03)",
-                            border: "1px solid rgba(255,255,255,0.06)",
-                            color: "#8ea4c1",
-                            fontWeight: 700,
-                            cursor: "not-allowed",
-                          }}
-                        >
-                          Relatório IA
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div
-            style={{
-              borderRadius: "34px",
-              padding: "24px",
-              border: "1px solid rgba(255,255,255,0.07)",
-              background: "rgba(5,12,24,0.76)",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "34px",
-                fontWeight: 800,
-                letterSpacing: "-0.04em",
-                marginBottom: "16px",
-              }}
-            >
-              Próximos blocos
-            </div>
-
-            <div style={{ display: "grid", gap: "12px" }}>
-              {upcomingModules.map((module) => (
-                <div
-                  key={module.key}
-                  style={{
-                    padding: "18px",
-                    borderRadius: "22px",
-                    background:
-                      "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02))",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: "12px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
-                      <div
-                        style={{
-                          fontWeight: 700,
-                          fontSize: "16px",
-                          marginBottom: "6px",
-                        }}
-                      >
-                        {module.name}
-                      </div>
-                      <div
-                        style={{
-                          color: "#8ea4c1",
-                          fontSize: "14px",
-                          lineHeight: 1.7,
-                        }}
-                      >
-                        Espaço reservado para evolução futura da plataforma.
-                      </div>
-                    </div>
-
-                    <span
-                      style={{
-                        padding: "8px 10px",
-                        borderRadius: "999px",
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        color: "#e6eefb",
-                        fontSize: "11px",
-                        fontWeight: 800,
-                        textTransform: "uppercase",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      Em breve
-                    </span>
-                  </div>
-                </div>
+              {monitoredRoutes.map((route) => (
+                <RouteCard key={route.key} route={route} />
               ))}
             </div>
+          </GhostPanel>
 
-            <div
-              style={{
-                marginTop: "18px",
-                borderRadius: "24px",
-                padding: "20px",
-                background: "rgba(18,242,118,0.05)",
-                border: "1px solid rgba(18,242,118,0.12)",
-              }}
-            >
+          <GhostPanel title="Próximos blocos">
+            <div style={{ display: "grid", gap: "16px" }}>
+              {[
+                "Análise com IA",
+                "Histórico de execuções",
+                "Pendências por responsável",
+                "Alertas automáticos"
+              ].map((item) => (
+                <div
+                  key={item}
+                  style={{
+                    borderRadius: "24px",
+                    padding: "22px",
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "16px"
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        fontSize: "18px",
+                        fontWeight: 800,
+                        marginBottom: "8px"
+                      }}
+                    >
+                      {item}
+                    </div>
+                    <div
+                      style={{
+                        color: "#92a4bc",
+                        fontSize: "16px",
+                        lineHeight: 1.7
+                      }}
+                    >
+                      Espaço reservado para evolução futura da plataforma.
+                    </div>
+                  </div>
+
+                  <span
+                    style={{
+                      flex: "0 0 auto",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      height: "38px",
+                      padding: "0 14px",
+                      borderRadius: "999px",
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      fontSize: "12px",
+                      fontWeight: 800,
+                      textTransform: "uppercase",
+                      color: "#d7deea"
+                    }}
+                  >
+                    Em breve
+                  </span>
+                </div>
+              ))}
+
               <div
                 style={{
-                  fontWeight: 700,
-                  fontSize: "18px",
-                  marginBottom: "8px",
+                  marginTop: "2px",
+                  borderRadius: "26px",
+                  padding: "24px",
+                  background: "rgba(18,242,118,0.06)",
+                  border: "1px solid rgba(18,242,118,0.12)"
                 }}
               >
-                Direção do produto
-              </div>
-
-              <div
-                style={{
-                  color: "#93a9c5",
-                  fontSize: "14px",
-                  lineHeight: 1.75,
-                }}
-              >
-                O próximo salto é ligar histórico real por rota, relatórios
-                inteligentes e a camada conversacional da IA dentro da mesma
-                experiência visual.
+                <div
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: 800,
+                    marginBottom: "10px"
+                  }}
+                >
+                  Direção do produto
+                </div>
+                <div
+                  style={{
+                    color: "#a4b8cf",
+                    fontSize: "18px",
+                    lineHeight: 1.75
+                  }}
+                >
+                  O próximo salto é ligar histórico real por rota, relatórios
+                  inteligentes e a camada conversacional da IA dentro da mesma
+                  experiência visual.
+                </div>
               </div>
             </div>
-          </div>
+          </GhostPanel>
         </section>
       </div>
+
+      <style>{`
+        @keyframes auroraShift {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) scale(1);
+            opacity: 0.9;
+          }
+          50% {
+            transform: translate3d(0, -2%, 0) scale(1.04);
+            opacity: 1;
+          }
+        }
+
+        @media (max-width: 1200px) {
+          main section[style*="grid-template-columns: 1.45fr 1fr"],
+          main section[style*="grid-template-columns: 1.55fr 1fr"] {
+            grid-template-columns: 1fr !important;
+          }
+        }
+
+        @media (max-width: 900px) {
+          h1 {
+            font-size: 48px !important;
+          }
+        }
+
+        @media (max-width: 760px) {
+          header {
+            padding: 20px !important;
+          }
+
+          main {
+            overflow-x: hidden;
+          }
+        }
+      `}</style>
     </main>
   );
 }
