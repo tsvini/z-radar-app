@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { DashboardRoute } from "@/lib/dashboard";
 import {
@@ -9,32 +11,56 @@ import {
 
 type RouteDetailCardProps = {
   route: DashboardRoute;
+  rerunBaseUrl?: string;
+  showPrimaryAction?: boolean;
+  primaryLabel?: string;
+  primaryHref?: string;
+  showResourceActions?: boolean;
 };
 
 function buildHistoryHref(routeKey: string) {
-  return `/historico/${routeKey}`;
+  return `/historico/${encodeURIComponent(routeKey)}`;
 }
 
-function buildRerunHref(routeKey: string) {
-  if (routeKey === "edutech") {
-    return "https://wandering-disk-47a9.tsvini111.workers.dev/?routeKey=edutech";
-  }
+function buildRerunHref(routeKey: string, baseUrl?: string) {
+  const fallbackBaseUrl = "https://wandering-disk-47a9.tsvini111.workers.dev/";
+  const resolvedBaseUrl = baseUrl || fallbackBaseUrl;
 
-  if (routeKey === "assistente-virtual") {
-    return "https://wandering-disk-47a9.tsvini111.workers.dev/?routeKey=assistente-virtual";
+  try {
+    const url = new URL(resolvedBaseUrl);
+    url.searchParams.set("routeKey", routeKey);
+    return url.toString();
+  } catch {
+    return resolvedBaseUrl;
   }
-
-  return "https://wandering-disk-47a9.tsvini111.workers.dev/";
 }
 
-export function RouteDetailCard({ route }: RouteDetailCardProps) {
+export function RouteDetailCard({
+  route,
+  rerunBaseUrl,
+  showPrimaryAction = true,
+  primaryLabel,
+  primaryHref,
+  showResourceActions = false,
+}: RouteDetailCardProps) {
   const tone = getRouteTone(route);
   const badge = getRouteBadge(route);
   const hasSnapshot = hasRealSnapshot(route);
 
-  const healthValue = hasSnapshot ? `${route.health_percent}%` : "-";
+  const healthPercent = Number(route.health_percent || 0);
+  const healthValue = hasSnapshot ? `${healthPercent}%` : "-";
   const capturedAt = formatBrazilDate(route.captured_at);
   const lastExecution = route.lastExecution || "Sem registro disponível";
+  const resolvedPrimaryHref = primaryHref || buildHistoryHref(route.key);
+  const resolvedPrimaryLabel = primaryLabel || "Ver histórico";
+  const rerunHref = buildRerunHref(route.key, rerunBaseUrl);
+
+  const docHref = typeof route.doc_link === "string" && route.doc_link.trim() ? route.doc_link : "";
+  const pdfHref = typeof route.pdf_link === "string" && route.pdf_link.trim() ? route.pdf_link : "";
+  const aiHref =
+    typeof route.ai_generation_url === "string" && route.ai_generation_url.trim()
+      ? route.ai_generation_url
+      : "";
 
   return (
     <article className="routeDetailCard">
@@ -63,7 +89,7 @@ export function RouteDetailCard({ route }: RouteDetailCardProps) {
         <div
           className={`healthBarFill ${tone}`}
           style={{
-            width: hasSnapshot ? `${Math.max(route.health_percent, 12)}%` : "18%",
+            width: hasSnapshot ? `${Math.max(healthPercent, 12)}%` : "18%",
           }}
         />
       </div>
@@ -103,18 +129,38 @@ export function RouteDetailCard({ route }: RouteDetailCardProps) {
       ) : null}
 
       <div className="detailActions">
-        <Link className="secondaryButton primary" href={buildHistoryHref(route.key)}>
-          Ver histórico
-        </Link>
+        {showPrimaryAction ? (
+          <Link className="secondaryButton primary" href={resolvedPrimaryHref}>
+            {resolvedPrimaryLabel}
+          </Link>
+        ) : null}
 
         <a
           className="secondaryButton"
-          href={buildRerunHref(route.key)}
+          href={rerunHref}
           target="_blank"
           rel="noreferrer"
         >
           Reexecutar auditoria
         </a>
+
+        {showResourceActions && docHref ? (
+          <a className="secondaryButton" href={docHref} target="_blank" rel="noreferrer">
+            Abrir documentação
+          </a>
+        ) : null}
+
+        {showResourceActions && pdfHref ? (
+          <a className="secondaryButton" href={pdfHref} target="_blank" rel="noreferrer">
+            Abrir PDF
+          </a>
+        ) : null}
+
+        {showResourceActions && aiHref ? (
+          <a className="secondaryButton" href={aiHref} target="_blank" rel="noreferrer">
+            Gerar com IA
+          </a>
+        ) : null}
       </div>
     </article>
   );

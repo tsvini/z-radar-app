@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type NavItem = {
   label: string;
@@ -17,13 +18,12 @@ type NavItem = {
     | "profile"
     | "logout";
   soon?: boolean;
-  active?: boolean;
 };
 
 const mainItems: NavItem[] = [
-  { label: "Dashboard", href: "/", icon: "dashboard", active: true },
+  { label: "Dashboard", href: "/", icon: "dashboard" },
   { label: "Auditoria documental", href: "#", icon: "document", soon: true },
-  { label: "Histórico", href: "#", icon: "history", soon: true },
+  { label: "Histórico", href: "/historico", icon: "history" },
   { label: "Pendências", href: "#", icon: "warning", soon: true },
   { label: "Insights", href: "#", icon: "insight", soon: true },
 ];
@@ -104,9 +104,8 @@ function SidebarIcon({ name }: { name: NavItem["icon"] }) {
     case "logout":
       return (
         <svg {...common}>
-          <path d="M15 17l5-5-5-5" />
-          <path d="M20 12H9" />
-          <path d="M12 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h7" />
+          <path d="M12 2v10" />
+          <path d="M6.3 4.9a9 9 0 1 0 11.4 0" />
         </svg>
       );
     default:
@@ -114,12 +113,30 @@ function SidebarIcon({ name }: { name: NavItem["icon"] }) {
   }
 }
 
+function ChevronIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 18l6-6-6-6" />
+    </svg>
+  );
+}
+
 function SidebarButton({
   item,
-  collapsed,
+  active,
 }: {
   item: NavItem;
-  collapsed: boolean;
+  active: boolean;
 }) {
   const content = (
     <>
@@ -127,20 +144,23 @@ function SidebarButton({
         <SidebarIcon name={item.icon} />
       </span>
 
-      {!collapsed && <span className="sidebarItemLabel">{item.label}</span>}
+      <span className="sidebarItemLabel">{item.label}</span>
 
-      {!collapsed && item.soon && <span className="soonBadge">Em breve</span>}
+      {item.soon && <span className="soonBadge">Em breve</span>}
     </>
   );
 
-  if (item.href === "#") {
+  const isDisabled = item.href === "#" || Boolean(item.soon);
+
+  if (isDisabled) {
     return (
       <button
         type="button"
-        className={`sidebarItem ${item.active ? "active" : ""} ${
-          collapsed ? "isCollapsed" : ""
-        }`}
-        title={collapsed ? item.label : undefined}
+        className={`sidebarItem disabled ${active ? "active" : ""}`}
+        data-tooltip={item.label}
+        aria-label={item.label}
+        aria-disabled="true"
+        tabIndex={-1}
       >
         {content}
       </button>
@@ -150,18 +170,25 @@ function SidebarButton({
   return (
     <Link
       href={item.href}
-      className={`sidebarItem ${item.active ? "active" : ""} ${
-        collapsed ? "isCollapsed" : ""
-      }`}
-      title={collapsed ? item.label : undefined}
+      className={`sidebarItem ${active ? "active" : ""}`}
+      data-tooltip={item.label}
+      aria-label={item.label}
+      aria-current={active ? "page" : undefined}
     >
       {content}
     </Link>
   );
 }
 
+function isActivePath(pathname: string, href: string) {
+  if (!href || href === "#") return false;
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname() || "/";
 
   return (
     <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
@@ -173,29 +200,30 @@ export function Sidebar() {
           aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
           title={collapsed ? "Expandir menu" : "Recolher menu"}
         >
-          <span className="sidebarToggleIcon">{collapsed ? "›" : "‹"}</span>
+          <span className="sidebarToggleIcon">
+            <ChevronIcon />
+          </span>
         </button>
 
-        <div className={`sidebarBrand ${collapsed ? "collapsed" : ""}`}>
-          <div className="sidebarLogoWrap">
-            <Image
-              src="/z-sidebar-icon.png"
-              alt="Z"
-              width={44}
-              height={44}
-              className="sidebarLogo"
-            />
-          </div>
+        <div className="sidebarHeader">
+          <div className="sidebarBrand">
+            <div className="sidebarLogoWrap">
+              <Image
+                src="/z-sidebar-icon.png"
+                alt="Z"
+                width={44}
+                height={44}
+                className="sidebarLogo"
+              />
+            </div>
 
-          {!collapsed && (
             <div className="sidebarBrandText">
               <strong>Z-Radar</strong>
               <span>Plataforma operacional</span>
             </div>
-          )}
+          </div>
         </div>
 
-        {!collapsed && <div className="sidebarTitle">Navegação</div>}
       </div>
 
       <div className="sidebarCenter">
@@ -204,7 +232,7 @@ export function Sidebar() {
             <SidebarButton
               key={item.label}
               item={item}
-              collapsed={collapsed}
+              active={isActivePath(pathname, item.href)}
             />
           ))}
         </nav>
@@ -216,7 +244,7 @@ export function Sidebar() {
             <SidebarButton
               key={item.label}
               item={item}
-              collapsed={collapsed}
+              active={isActivePath(pathname, item.href)}
             />
           ))}
         </nav>

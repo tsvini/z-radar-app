@@ -1,8 +1,8 @@
 import { HeroBanner } from "@/components/hero-banner";
-import { RouteDetailCard } from "@/components/route-detail-card";
+import { RoutesExplorer } from "@/components/routes-explorer";
 import { StatCard } from "@/components/stat-card";
 import { UpcomingModuleCard } from "@/components/upcoming-module-card";
-import { getDashboardData, type DashboardRoute } from "@/lib/dashboard";
+import { formatBrazilDate, getDashboardData, type DashboardRoute } from "@/lib/dashboard";
 
 export default async function HomePage() {
   const data = await getDashboardData();
@@ -32,8 +32,25 @@ export default async function HomePage() {
         )
       : 0;
 
+  const latestCapturedAt = routes
+    .map((route) => (route.captured_at ? new Date(route.captured_at) : null))
+    .filter((date): date is Date => Boolean(date && !Number.isNaN(date.getTime())))
+    .sort((a, b) => b.getTime() - a.getTime())[0];
+
+  const lastUpdatedValue = latestCapturedAt
+    ? formatBrazilDate(latestCapturedAt.toISOString())
+    : "Sem registro";
+
+  const healthTone = avgHealth < 40 ? "danger" : avgHealth < 75 ? "warning" : "success";
+  const criticalTone = totalCritical === 0 ? "success" : totalCritical < 5 ? "warning" : "danger";
+
   const errorMessage =
     typeof data?.error === "string" && data.error.trim() ? data.error : "";
+
+  const rerunBaseUrl =
+    process.env.NEXT_PUBLIC_WORKER_RERUN_URL ||
+    process.env.NEXT_PUBLIC_DASHBOARD_RERUN_URL ||
+    "https://wandering-disk-47a9.tsvini111.workers.dev/";
 
   const upcomingModules = [
     {
@@ -60,7 +77,7 @@ export default async function HomePage() {
 
   return (
     <div className="dashboardWrap">
-      <HeroBanner />
+      <HeroBanner lastUpdatedValue={lastUpdatedValue} />
 
       {errorMessage ? (
         <div className="errorBanner">
@@ -73,43 +90,41 @@ export default async function HomePage() {
           title="Rotas monitoradas"
           value={String(totalRoutes)}
           footnote="Dados reais do Worker"
+          icon="routes"
+          tone={totalRoutes > 0 ? "success" : "neutral"}
         />
 
         <StatCard
           title="Saúde média"
           value={`${avgHealth}%`}
           footnote="Média consolidada"
+          icon="health"
+          tone={totalRoutes > 0 ? healthTone : "neutral"}
         />
 
         <StatCard
           title="Páginas auditadas"
           value={String(totalPages)}
           footnote={`${totalOutdated} desatualizadas`}
+          icon="pages"
+          tone={totalPages > 0 ? "neutral" : "neutral"}
         />
 
         <StatCard
           title="Críticas"
           value={String(totalCritical)}
           footnote="Itens com atenção imediata"
+          icon="critical"
+          tone={totalRoutes > 0 ? criticalTone : "neutral"}
         />
       </section>
 
-      <section className="sectionCard">
-        <div className="sectionHeader">
-          <div>
-            <h2 className="sectionTitle">Visão detalhada</h2>
-            <p className="sectionSubtitle">
-              Consolidado executivo das rotas auditadas
-            </p>
-          </div>
-        </div>
-
-        <div className="routeDetailsGrid">
-          {routes.map((route) => (
-            <RouteDetailCard key={route.key} route={route} />
-          ))}
-        </div>
-      </section>
+      <RoutesExplorer
+        routes={routes}
+        rerunBaseUrl={rerunBaseUrl}
+        title="Visão detalhada"
+        subtitle="Consolidado executivo das rotas auditadas"
+      />
 
       <section className="sectionCard">
         <div className="sectionHeader">

@@ -18,7 +18,9 @@ export default function RootLayout({
         <div className="aurora-bg" />
         <div className="appShell">
           <Sidebar />
-          <main className="appContent">{children}</main>
+          <main className="appContent">
+            <div className="contentInner">{children}</div>
+          </main>
         </div>
       </body>
     </html>
